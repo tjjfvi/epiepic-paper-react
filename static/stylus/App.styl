@@ -1,0 +1,25 @@
+aspect=1.395555
+cardHeight=(1/(4+2/3))*100vh
+cardWidth=cardHeight/aspect
+
+.App
+  width 100vw
+  height 100vh
+  display grid
+  grid-template:
+    "ouser ohand odeck odisc" cardHeight \
+    "osupp oplay status status" cardHeight*(4/3) \
+    "psupp pplay status status" cardHeight*(4/3) \
+    "puser phand pdeck pdisc" cardHeight \
+    / cardWidth*2 1fr cardWidth cardWidth;
+
+  & > *
+    border 1px solid red;
+  .status
+    grid-area: status;
+  for area in user hand deck disc supp play
+    .{area}
+      &.p
+        grid-area: unquote("p"+area);
+      &.o
+        grid-area: unquote("o"+area);

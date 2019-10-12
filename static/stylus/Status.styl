@@ -1,0 +1,123 @@
+
+.status
+  display flex
+  flex-direction column
+  justify-content space-between
+  align-items center
+
+  > .o
+  > .p
+    flex 1 0 auto
+
+    display flex
+    flex-direction column
+    justify-content space-between
+    align-items center
+
+    &.o
+      padding-top 3ex
+    &.p
+      padding-bottom 3ex
+    
+    .initiative
+      width 6em
+      height ( @width / 2 )
+      overflow hidden
+      
+      $borderRadius = @width/2
+      border-top-left-radius $borderRadius
+      border-top-right-radius $borderRadius
+      border 3px solid $grey
+
+      &.on
+        background $grey
+
+      &.hideInitiative
+        pointer-events none
+        opacity 0
+      
+      &.p
+        transform rotate(180deg)
+        &.on
+          border-color $blue
+          background $blue
+        
+    .attention
+      cursor pointer
+      width 5ex
+      height @width
+      border 3px solid $darkgrey
+      box-sizing border-box
+      transform rotate(45deg)
+
+      &.on
+        display auto
+        border-width 0
+        background-color $yellow
+
+        &.p
+          animation pulse 1s infinite
+        
+      &.p:not(.on)
+        opacity 0
+        pointer-events none
+      
+
+    .waitingOn
+      cursor pointer
+      animation pulse 1s infinite
+      width 5ex
+      height @width
+      border 3px solid $grey
+      box-sizing border-box
+      border-radius @width
+
+      &.on
+        border-width 0
+        background-color $white
+
+      &:not(.on)
+      &.o
+        animation none
+    
+  .tp
+    width 50%
+    flex 0 1 auto
+
+    display flex
+    flex-direction column
+    align-items center
+    justify-content space-between
+
+    padding 1ex 1em
+    margin 1ex 0
+
+    cursor pointer
+
+    color $lightgrey
+    border 3px solid $grey
+    border-radius 2ex
+
+    text-align center
+
+    &.canProceed
+      color $blue
+      border-color @color
+    &.willProceed
+      color $green
+      border-color @color
+    &.shouldProceed.pTurn
+      color $green
+      border-color @color
+      animation pulse 2s infinite
+
+    .turn
+      font-weight 100
+      font-size 25px
+    
+    .phase
+      font-size 20px
+
+      
+
+
