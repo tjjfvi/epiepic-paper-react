@@ -1,23 +1,26 @@
+/* @flow */
 
 import React from "react";
+import { useObservable } from "./hobo";
+import Toggle from "./Toggle";
 
 const Status = () => {
-  const x = 5;
+  const waitingOn = useObservable<boolean>(false);
   return (
     <div className="status">
       <div className="o">
-        <div className="waitingOn o on"/>
-        <div className="attention o on"/>
-        <div className="initiative o on"/>
+        <Toggle className="waitingOn o" value={waitingOn}/>
+        <div className="attention o true"/>
+        <div className="initiative o true"/>
       </div>
       <div className="tp">
         <span className="turn">Their turn</span>
         <span className="phase">Main phase</span>
       </div>
       <div className="p">
-        <div className="initiative p on"/>
-        <div className="attention p on"/>
-        <div className="waitingOn p on"/>
+        <div className="initiative p true"/>
+        <div className="attention p true"/>
+        <div className="waitingOn p true"/>
       </div>
     </div>
   );

@@ -29,7 +29,7 @@
       border-top-right-radius $borderRadius
       border 3px solid $grey
 
-      &.on
+      &.true
         background $grey
 
       &.hideInitiative
@@ -38,7 +38,7 @@
       
       &.p
         transform rotate(180deg)
-        &.on
+        &.true
           border-color $blue
           background $blue
         
@@ -50,7 +50,7 @@
       box-sizing border-box
       transform rotate(45deg)
 
-      &.on
+      &.true
         display auto
         border-width 0
         background-color $yellow
@@ -58,7 +58,7 @@
         &.p
           animation pulse 1s infinite
         
-      &.p:not(.on)
+      &.p.false
         opacity 0
         pointer-events none
       
@@ -72,11 +72,11 @@
       box-sizing border-box
       border-radius @width
 
-      &.on
+      &.true
         border-width 0
         background-color $white
 
-      &:not(.on)
+      &.false
       &.o
         animation none
     
