@@ -19,10 +19,8 @@ class _Observable<T> extends Function {
     }
 
     use(){
-      let [, setState] = React.useState(this.val);
-      this.ee.once("change", () => {
-        setState(this.val)
-      });
+      let [, setState] = React.useState({});
+      this.ee.once("change", () => setState({}));
       return this;
     }
 

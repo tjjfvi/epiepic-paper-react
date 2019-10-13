@@ -1,9 +1,11 @@
 
 import React from "react";
 import Status from "./Status";
+import Game from "./Game";
 
-const App = () => (
-  <div className="App">
+const App = () => {
+  const game = new Game();
+  return <div className="App">
     <div className="p user"/>
     <div className="p supp"/>
     <div className="p deck"/>
@@ -16,8 +18,8 @@ const App = () => (
     <div className="o disc"/>
     <div className="o play"/>
     <div className="o hand"/>
-    <Status/>
+    <Status game={game}/>
   </div>
-)
+}
 
 export default App;
