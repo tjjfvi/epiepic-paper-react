@@ -21,7 +21,8 @@ type Player = {
 
 class Game {
 
-    static phaseNames = {
+    static phases: Array<Phase> = ["start", "main", "battle-0", "battle-1", "battle-2", "battle-3", "battle-4", "end"];
+    static phaseNames: { [Phase]: string } = {
       start: "Start Phase",
       main: "Main Phase",
       end: "End Phase",
