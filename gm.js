@@ -23,7 +23,8 @@ async function setup(ws1, ws2){
     user: ws.user,
     health: 30,
     gold: 1,
-    waitingOn: true
+    waitingOn: true,
+    attention: false,
   });
   let game = ({
     p0: genP(ws1),
@@ -32,6 +33,14 @@ async function setup(ws1, ws2){
     phase: "start",
     initiative: false,
     log: [],
+    cards: [{
+      id: "test",
+      cardId: "set1-muse",
+      owner: false,
+      player: false,
+      zone: "hand",
+      pos: 1,
+    }],
   });
   // games[game._id.toString()] = game;
   game.p0.ws = ws1;

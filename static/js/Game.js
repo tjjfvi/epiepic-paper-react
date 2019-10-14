@@ -8,6 +8,7 @@ type O<T> = Observable<T>;
 type C<T> = Computed<T>;
 
 type Phase = "start" | "main" | "battle-0" | "battle-1" | "battle-2" | "battle-3" | "battle-4" | "end";
+type Zone = "hand" | "deck" | "disc" | "supp" | "play";
 type Player = {
     n: boolean,
     user: any,
@@ -17,11 +18,21 @@ type Player = {
     attention: O<boolean>,
     gold: O<boolean>,
     health: O<number>,
+    zones: { [Zone]: C<Array<Card>> },
 };
+type Card = {
+  id: string,
+  cardId: O<?string>,
+  owner: boolean,
+  zone: O<Zone>,
+  player: O<boolean>,
+  pos: O<number>,
+}
 
 class Game {
 
     static phases: Array<Phase> = ["start", "main", "battle-0", "battle-1", "battle-2", "battle-3", "battle-4", "end"];
+    static zones: Array<Zone> = ["hand", "deck", "disc", "supp", "play"];
     static phaseNames: { [Phase]: string } = {
       start: "Start Phase",
       main: "Main Phase",
@@ -33,6 +44,8 @@ class Game {
       "battle-4": "Assign Damage",
     }
 
+    ws: WS;
+
     ready = observable<boolean>(false);
     turn: O<boolean>;
     initiative: O<boolean>;
@@ -43,7 +56,13 @@ class Game {
     p0: Player;
     p1: Player;
 
+    cardCount: O<number> = observable<number>(0);
+    cards = new Set<Card>();
+    minPos: number = 0;
+    maxPos: number = 0;
+
     constructor(ws: WS){
+      this.ws = ws;
       ws.on("message", ([type, ...data]) => {
         if(type === "init") {
           let [pn, g] = data;
@@ -52,7 +71,8 @@ class Game {
           this.initiative = ws.observable<boolean>(g.initiative, ["initiative"])
           this.phase = ws.observable<Phase>(g.phase, ["phase"])
           this.phaseName = computed(() => Game.phaseNames[this.phase()])
-          let p = n => {
+          this.addCards(...g.cards);
+          let p = (n: boolean): Player => {
             let pn = "p" + +n;
             let p = g[pn]
             return {
@@ -64,6 +84,17 @@ class Game {
               attention: ws.observable<boolean>(p.attention, [pn, "attention"]),
               gold: ws.observable<boolean>(p.gold, [pn, "gold"]),
               health: ws.observable<number>(p.health, [pn, "health"]),
+              zones: Game.zones.map(zone => {
+                let x: { [Zone]: C<Array<Card>> } = ({
+                  [zone]: computed<Array<Card>>(() => {
+                    this.cardCount();
+                    return [...this.cards]
+                      .filter((c: Card) => c.player() === n && c.zone() === zone)
+                      .sort((a: Card, b: Card) => b.pos() - a.pos());
+                  })
+                })
+                return x;
+              }).reduce<{ [Zone]: C<Array<Card>> }>((b, a) => ({ ...a, ...b }), {})
             }
           };
           this.p0 = p(false);
@@ -78,6 +109,29 @@ class Game {
       })
     }
 
+    addCards(...cards: Array<any>){
+      const { ws } = this;
+      cards.map(c => {
+        const { id } = c;
+        let card: Card = {
+          id,
+          cardId: ws.observable<?string>(c.cardId, ["card", id, "cardId"]),
+          owner: c.boolean,
+          player: ws.observable<boolean>(c.player, ["card", id, "player"]),
+          zone: ws.observable<Zone>(c.zone, ["card", id, "zone"]),
+          pos: ws.observable<number>(c.pos, ["card", id, "pos"]),
+        };
+        this.cards.add(card);
+        const updatePos = pos => {
+          this.minPos = Math.min(this.minPos, pos);
+          this.maxPos = Math.min(this.maxPos, pos);
+        }
+        updatePos(c.pos);
+        card.pos.ee.on("change", updatePos);
+      })
+      this.cardCount(this.cardCount() + cards.length);
+    }
+
     cyclePhase(){
       let phase = this.phase();
       let change = {
@@ -90,7 +144,6 @@ class Game {
         "battle-4": ["main", true, false, false],
         end: ["start", true, false, true],
       }[phase];
-      // debugger;
       change[1] = !(+change[1] ^ +this.turn());
       if(this.turn()) {
         let x = change[2];
@@ -111,4 +164,4 @@ class Game {
 }
 
 export default Game;
-export type { Player, Phase };
+export type { Player, Phase, Card };

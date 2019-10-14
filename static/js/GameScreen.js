@@ -4,6 +4,7 @@ import React from "react";
 import Status from "./Status";
 import Game from "./Game";
 import User from "./User";
+import HPS from "./HPS";
 import ws from "./ws";
 import { useValue } from "./hobo";
 
@@ -15,17 +16,17 @@ const GameScreen = () => {
     return <div className="waiting">One moment...</div>;
   return <div className="Game">
     <User player={game.p} game={game}/>
-    <div className="p supp"/>
+    <HPS zone={game.p.zones.hand} className="p hand"/>
+    <HPS zone={game.p.zones.play} className="p play"/>
+    <HPS zone={game.p.zones.supp} className="p supp"/>
     <div className="p deck"/>
     <div className="p disc"/>
-    <div className="p play"/>
-    <div className="p hand"/>
     <User player={game.o} game={game}/>
-    <div className="o supp"/>
+    <HPS zone={game.o.zones.hand} className="o hand"/>
+    <HPS zone={game.o.zones.play} className="o play"/>
+    <HPS zone={game.o.zones.supp} className="o supp"/>
     <div className="o deck"/>
     <div className="o disc"/>
-    <div className="o play"/>
-    <div className="o hand"/>
     <Status game={game}/>
   </div>
 }
