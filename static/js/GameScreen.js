@@ -1,10 +1,17 @@
+/* @flow */
 
 import React from "react";
 import Status from "./Status";
 import Game from "./Game";
+import ws from "./ws";
+import { useValue } from "./hobo";
 
 const GameScreen = () => {
-  const game = new Game();
+  const game = useValue(() => new Game(ws));
+  game.ready.use();
+  console.log(game.ready())
+  if(!game.ready())
+    return <div className="waiting">One moment...</div>;
   return <div className="Game">
     <div className="p user"/>
     <div className="p supp"/>

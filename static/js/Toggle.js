@@ -21,7 +21,7 @@ const Toggle = ({
 }: Props) => {
   value.use();
   return <div
-    className={className + " " + value().toString()}
+    className={className + " " + (value() ?? "").toString()}
     onClick={() => {
       if(!toggle) return;
       if(value() && !toggleOff) return;

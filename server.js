@@ -136,6 +136,8 @@ app.ws("/ws", async (ws, req) => {
       sendStatus(ws, ws2);
 
       gm.setup(ws2, ws, ws2, pswd).catch(gmError(ws));
+
+      return;
     }
     if(type === "host") {
       if(ws.status !== "waiting")
@@ -155,6 +157,8 @@ app.ws("/ws", async (ws, req) => {
       ws.status = "hosting";
 
       sendStatus(ws);
+
+      return;
     }
     if(ws.status !== "playing")
       return;

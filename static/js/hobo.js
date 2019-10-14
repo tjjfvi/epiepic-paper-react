@@ -46,13 +46,15 @@ class _Observable<T> extends Function {
 
 class _Computed<T> extends _Observable<T> {
 
-  deps: Array<Observable<any>>;
+  deps: Set<Observable<any>>;
 
   update: () => any;
 
   addDep(o: Observable<any>){
-    this.deps.push(o);
+    if(this.deps.has(o))
+      return;
     o.ee.on("change", this.update);
+    this.deps.add(o);
   }
 
 }
@@ -61,6 +63,8 @@ const observable = <T/**/>(val: T): Observable<T> => {
   const f = v => {
     if(v !== undefined) {
       let old = o.val;
+      if(old === v)
+        return v;
       o.val = v;
       o.ee.emit("change", v, old);
       return v;
@@ -77,18 +81,42 @@ const observable = <T/**/>(val: T): Observable<T> => {
   return o;
 }
 
-const computed = <T/**/>(func: () => T) => {
+const computed = <T/**/>(func: () => T, writeFunc?: T => any) => {
+  const o = observable();
   // $FlowFixMe
-  const o: Computed<T> = Object.setPrototypeOf(observable(), _Computed.prototype);
-  o.deps = [];
-  o.update = () => {
-    o.deps.map(O => O.ee.removeListener("change", o.update));
-    o.deps = [];
-    cur = o;
-    o(func());
+  const c: Computed<T> = Object.setPrototypeOf(val => {
+    if(val !== undefined) {
+      if(!writeFunc)
+        throw new Error("Not a writeable computed");
+      if(val === o.val)
+        return val;
+      writeFunc(val);
+      return val;
+    } else {
+      return o();
+    }
+  }, _Computed.prototype);
+  c.o = c;
+  c.ee = o.ee;
+  Object.defineProperty(c, "val", {
+    get(){
+      return o.val;
+    },
+    set(x){
+      o.val = x;
+    },
+  })
+  c.deps = new Set();
+  c.update = () => {
+    c.deps.forEach(O => O.ee.removeListener("change", c.update));
+    c.deps = new Set();
+    cur = c;
+    let v = func();
+    cur = null;
+    o(v);
   }
-  o.update();
-  return o;
+  c.update();
+  return c;
 }
 
 const useValue = <V/**/>(v: () => V): V => React.useState(v)[0];

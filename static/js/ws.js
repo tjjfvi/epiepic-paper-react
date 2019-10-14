@@ -2,7 +2,8 @@
 
 import React from "react";
 import EventEmitter from "events";
-import { observable } from "./hobo";
+import { observable, computed } from "./hobo";
+import type { Observable } from "./hobo";
 import LoginScreen from "./LoginScreen";
 // import { go } from "./App";
 
@@ -42,20 +43,20 @@ class WS extends EventEmitter {
     this.ws.send(JSON.stringify(data));
   }
 
-  observable(val: any, recvType: Array<any>, sendType: Array<any> = recvType){
-    let o = observable<any>(val);
-    let skip;
+  observable<T>(val: T, recvType: Array<any>, sendType: Array<any> = recvType): Observable<T>{
+    let o = observable<T>(val);
+    let c = computed<T>(
+      () => o(),
+      v => {
+        o(v);
+        this.s(...sendType, v)
+      }
+    );
     this.on("message", data => {
       if(!recvType.every((x, i) => data[i] === x)) return;
-      skip = true;
       o(data[recvType.length]);
     });
-    o.ee.on("change", val => {
-      if(skip)
-        return skip = false;
-      this.s([...sendType, val])
-    })
-    return o;
+    return c;
   }
 
 }
@@ -65,5 +66,6 @@ const { protocol, pathname, host } = location;
 const wsPath = pathname.replace(/\/$/, "") + "/ws";
 const wsProtocol = protocol === "https:" ? "wss" : "ws";
 export default new WS(`${wsProtocol}://${host}${wsPath}`);
+export { WS }
 
 import { go } from "./App";
