@@ -2,7 +2,7 @@
 import React from "react";
 import { useValue, useObservable } from "./hobo";
 import ws from "./ws";
-import GameScreen from "./GameScreen";
+import DeckChoiceScreen from "./DeckChoiceScreen";
 import { go } from "./App";
 
 const Game = ({ game }) => {
@@ -33,7 +33,7 @@ const LobbyScreen = () => {
   const status = useValue(() => ws.observable(null, ["status"])).use();
   const input = React.useRef();
   if(status() === "playing")
-    go(GameScreen);
+    go(DeckChoiceScreen);
   return (
     status() === "hosting" ?
       <div className="waiting">Waiting for someone to join...</div> :

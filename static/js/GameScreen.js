@@ -5,6 +5,7 @@ import Status from "./Status";
 import Game from "./Game";
 import User from "./User";
 import HPS from "./HPS";
+import Deck from "./Deck";
 import ws from "./ws";
 import { useValue } from "./hobo";
 
@@ -19,13 +20,13 @@ const GameScreen = () => {
     <HPS zone={game.p.zones.hand} className="p hand"/>
     <HPS zone={game.p.zones.play} className="p play"/>
     <HPS zone={game.p.zones.supp} className="p supp"/>
-    <div className="p deck"/>
+    <Deck player={game.p} className="p"/>
     <div className="p disc"/>
     <User player={game.o} game={game}/>
     <HPS zone={game.o.zones.hand} className="o hand"/>
     <HPS zone={game.o.zones.play} className="o play"/>
     <HPS zone={game.o.zones.supp} className="o supp"/>
-    <div className="o deck"/>
+    <Deck player={game.o} className="o"/>
     <div className="o disc"/>
     <Status game={game}/>
   </div>

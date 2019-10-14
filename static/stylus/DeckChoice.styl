@@ -1,0 +1,40 @@
+
+.DeckChoice
+  display flex
+  flex-direction column
+
+  & button
+    width 100%
+    height 30px
+
+    border-radius 0px 0px 10px 10px
+    border-top-width 0px
+
+    cursor pointer
+    font-size 17.5px
+
+    &:hover
+      color $white
+      border-color $lightgrey
+
+  & textarea
+    border-radius 10px 10px 0px 0px
+    height 300px
+
+  & button
+  & textarea
+    background-color $black
+    border 2px solid $grey
+    text-align center
+
+    color $lightgrey
+    font-size 15px
+
+    width 500px
+
+    padding 3px
+
+    transition color .2s, border .2s
+
+    &.wrong
+       border-color $red

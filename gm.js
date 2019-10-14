@@ -1,4 +1,5 @@
 
+const uuidv4 = require("uuid/v4");
 // const games = {};
 
 async function handle(ws, type, ...data){
@@ -13,6 +14,43 @@ async function handle(ws, type, ...data){
       game[type][prop] = val;
       ws.o.s(type, prop, val);
     }
+  }
+  if(type === "card" && ~["zone", "player", "pos"].indexOf(data[1])) {
+    let [id, prop, val] = data;
+    let card = game.cards.find(c => c.id === id);
+    if(!card) return;
+    card[prop] = val;
+    ws.o.s(type, id, prop, val);
+    if(prop === "zone" || prop === "player") {
+      let p = ws["p" + +card.player];
+      let o = p.o;
+      if(card.zone !== "deck") {
+        p.s(type, id, "cardId", card.cardId);
+        if(card.zone !== "hand")
+          o.s(type, id, "cardId", card.cardId);
+      }
+    }
+  }
+  if(type === "deck") {
+    if(ws.deck) return;
+    ws.deck = [].concat(...data[0].map(({ count, card }) => [...Array(count)].map(() => ({
+      id: uuidv4(),
+      card: card,
+      cardId: card._id,
+      owner: !!ws.n,
+      player: !!ws.n,
+      zone: "deck",
+      pos: Math.random(),
+    }))));
+    if(!ws.o.deck) return;
+    game.cards.push(...ws.deck, ...ws.o.deck);
+    let obj = {
+      ...game,
+      p0: { ...game.p0, ws: null },
+      p1: { ...game.p1, ws: null },
+      cards: game.cards.map(c => ({ ...c, cardId: null }))
+    };
+    [ws, ws.o].map(ws => ws.s("init", ws.n, obj));
   }
 }
 
@@ -32,15 +70,7 @@ async function setup(ws1, ws2){
     turn: false,
     phase: "start",
     initiative: false,
-    log: [],
-    cards: [{
-      id: "test",
-      cardId: "set1-muse",
-      owner: false,
-      player: false,
-      zone: "hand",
-      pos: 1,
-    }],
+    cards: [],
   });
   // games[game._id.toString()] = game;
   game.p0.ws = ws1;
@@ -54,8 +84,6 @@ async function setup(ws1, ws2){
   ws1.n = 0;
   ws2.n = 1;
     // ---
-  let obj = { ...game, p0: { ...game.p0, ws: null }, p1: { ...game.p1, ws: null } };
-  [ws1, ws2].map(ws => ws.s("init", ws.n, obj));
 }
 
 module.exports = { handle, setup };

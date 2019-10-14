@@ -19,6 +19,7 @@ type Player = {
     gold: O<boolean>,
     health: O<number>,
     zones: { [Zone]: C<Array<Card>> },
+    game: Game,
 };
 type Card = {
   id: string,
@@ -94,7 +95,8 @@ class Game {
                   })
                 })
                 return x;
-              }).reduce<{ [Zone]: C<Array<Card>> }>((b, a) => ({ ...a, ...b }), {})
+              }).reduce<{ [Zone]: C<Array<Card>> }>((b, a) => ({ ...a, ...b }), {}),
+              game: this
             }
           };
           this.p0 = p(false);
