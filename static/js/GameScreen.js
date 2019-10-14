@@ -3,6 +3,7 @@
 import React from "react";
 import Status from "./Status";
 import Game from "./Game";
+import User from "./User";
 import ws from "./ws";
 import { useValue } from "./hobo";
 
@@ -13,13 +14,13 @@ const GameScreen = () => {
   if(!game.ready())
     return <div className="waiting">One moment...</div>;
   return <div className="Game">
-    <div className="p user"/>
+    <User player={game.p} game={game}/>
     <div className="p supp"/>
     <div className="p deck"/>
     <div className="p disc"/>
     <div className="p play"/>
     <div className="p hand"/>
-    <div className="o user"/>
+    <User player={game.o} game={game}/>
     <div className="o supp"/>
     <div className="o deck"/>
     <div className="o disc"/>

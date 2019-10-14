@@ -9,14 +9,14 @@ type C<T> = Computed<T>;
 
 type Phase = "start" | "main" | "battle-0" | "battle-1" | "battle-2" | "battle-3" | "battle-4" | "end";
 type Player = {
-    n: boolean;
+    n: boolean,
+    user: any,
     hasTurn: C<boolean>,
     hasInitiative: C<boolean>,
     waitingOn: O<boolean>,
     attention: O<boolean>,
     gold: O<boolean>,
     health: O<number>,
-
 };
 
 class Game {
@@ -57,6 +57,7 @@ class Game {
             let p = g[pn]
             return {
               n,
+              user: p.user,
               hasTurn: computed(() => this.turn() === n),
               hasInitiative: computed(() => this.initiative() === n),
               waitingOn: ws.observable<boolean>(p.waitingOn, [pn, "waitingOn"]),
@@ -110,3 +111,4 @@ class Game {
 }
 
 export default Game;
+export type { Player, Phase };
