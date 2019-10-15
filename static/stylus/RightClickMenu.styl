@@ -1,0 +1,28 @@
+
+.RightClickMenu
+  position absolute
+  top 0
+  left 0
+
+  display flex
+  flex-direction column
+
+  z-index 1000
+
+  & span
+    background $black
+    color $white
+
+
+    border 1px solid $grey
+
+    padding 5px
+
+    cursor pointer
+
+    transition background .2s
+
+    &:hover
+      background $darkgrey
+    
+    colorClasses()
