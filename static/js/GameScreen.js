@@ -11,6 +11,12 @@ import ws from "./ws";
 import { useValue } from "./hobo";
 import moveFuncs from "./moveFuncs";
 
+const GameStateHelper = ({ game }: { game: Game }) => <div className={
+  (game.p.hasTurn.use()() ? "pTurn " : "oTurn ") +
+  (game.p.hasInitiative.use()() ? "pInit " : "oInit ") +
+  (game.p.gold.use()() ? "pGold " : "") +
+  (game.o.gold.use()() ? "oGold " : "") +
+""}/>;
 const GameScreen = () => {
   const game = useValue(() => new Game(ws));
   game.ready.use();
@@ -18,6 +24,7 @@ const GameScreen = () => {
   if(!game.ready())
     return <div className="waiting">One moment...</div>;
   return <div className="Game">
+    <GameStateHelper game={game}/>
     <User player={game.o} game={game}/>
     <HPS menu={[]} game={game} zone={game.o.zones.hand} className="o hand"/>
     <HPS menu={[]} game={game} zone={game.o.zones.play} className="o play"/>

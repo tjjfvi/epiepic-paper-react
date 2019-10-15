@@ -1,0 +1,16 @@
+
+.user
+.hand
+.deck
+.disc
+  &.o
+    border-bottom 1px solid $grey
+    .oGold ~ &
+    .oGold ~ * &
+      border-color $yellow
+  
+  &.p
+    border-top 1px solid $grey
+    .pGold ~ &
+    .pGold ~ * &
+      border-color $yellow
