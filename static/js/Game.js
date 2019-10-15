@@ -126,7 +126,7 @@ class Game {
         this.cards.add(card);
         const updatePos = pos => {
           this.minPos = Math.min(this.minPos, pos);
-          this.maxPos = Math.min(this.maxPos, pos);
+          this.maxPos = Math.max(this.maxPos, pos);
         }
         updatePos(c.pos);
         card.pos.ee.on("change", updatePos);

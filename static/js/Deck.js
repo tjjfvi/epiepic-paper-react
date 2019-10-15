@@ -13,7 +13,7 @@ const Deck = ({ player, className }: Props) => {
   return (
     <div className={"deck " + className} onClick={double(() => {
       let card = player.zones.deck().slice(-1)[0];
-      card.pos(++player.game.maxPos);
+      card.pos(player.game.maxPos + 1);
       card.zone("hand");
     }, () => {})}>
       <img src={player.zones.deck().length ? "/images/back" : ""}/>
