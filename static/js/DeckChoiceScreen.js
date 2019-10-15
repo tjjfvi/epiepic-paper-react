@@ -11,7 +11,7 @@ const DeckChoiceScreen = () => {
   const textarea = React.useRef();
   return (
     <div className="DeckChoice">
-      <textarea className={wrong() ? "wrong" : ""} ref={textarea} placeholder="Deck ID or Deck List"/>
+      <textarea className={wrong() ? "wrong" : ""} ref={textarea} placeholder="Deck ID or Deck List">30 Muse</textarea>
       <button onClick={async () => {
         const re = /^(?:http.*id=)?([0-9af]+)(?:&.*)?$/;
         let input = (textarea.current?.value || "").trim();

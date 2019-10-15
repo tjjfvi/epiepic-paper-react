@@ -1,20 +1,24 @@
 /* @flow */
 
 import React from "react";
+import Game from "./Game";
 import type { Card as CardType } from "./Game"
 import type { Observable } from "./hobo";
 import Card from "./Card";
+import type { MoveFunc } from "./moveFuncs";
 
 type Props = {
-    zone: Observable<Array<CardType>>,
-    className?: string,
+  game: Game,
+  zone: Observable<Array<CardType>>,
+  className?: string,
+  menu: Array<MoveFunc>,
 }
 
-const HPS = ({ zone, className }: Props) => {
+const HPS = ({ game, zone, className, menu }: Props) => {
   zone.use();
   return (
     <div className={"HPS " + (className || "")}>
-      {zone().map(c => <Card key={c.id} card={c}/>)}
+      {zone().map(c => <Card game={game} menu={menu} key={c.id} card={c}/>)}
     </div>
   )
 }

@@ -25,9 +25,9 @@ async function handle(ws, type, ...data){
       let p = ws["p" + +card.player];
       let o = p.o;
       if(card.zone !== "deck") {
-        p.s(type, id, "cardId", card.cardId);
+        p.s(type, id, "card", card.card);
         if(card.zone !== "hand")
-          o.s(type, id, "cardId", card.cardId);
+          o.s(type, id, "card", card.card);
       }
     }
   }
@@ -36,7 +36,6 @@ async function handle(ws, type, ...data){
     ws.deck = [].concat(...data[0].map(({ count, card }) => [...Array(count)].map(() => ({
       id: uuidv4(),
       card: card,
-      cardId: card._id,
       owner: !!ws.n,
       player: !!ws.n,
       zone: "deck",

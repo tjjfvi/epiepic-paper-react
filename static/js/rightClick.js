@@ -51,9 +51,14 @@ $("*").on("contextmenu", e => e.preventDefault());
 
 $("*").on("click contextmenu", () => {
   $(".rightClicked, .childRightClicked").removeClass("rightClicked childRightClicked");
-  menu([]);
+  let old = menu();
+  setTimeout(() => {
+    if(old === menu())
+      menu([])
+  });
 })
 
 
 export default rightClick;
 export { RightClickMenu };
+export type { MenuItem };

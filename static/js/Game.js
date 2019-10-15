@@ -23,7 +23,7 @@ type Player = {
 };
 type Card = {
   id: string,
-  cardId: O<?string>,
+  card: O<any>,
   owner: boolean,
   zone: O<Zone>,
   player: O<boolean>,
@@ -33,7 +33,6 @@ type Card = {
 class Game {
 
     static phases: Array<Phase> = ["start", "main", "battle-0", "battle-1", "battle-2", "battle-3", "battle-4", "end"];
-    static zones: Array<Zone> = ["hand", "deck", "disc", "supp", "play"];
     static phaseNames: { [Phase]: string } = {
       start: "Start Phase",
       main: "Main Phase",
@@ -43,6 +42,15 @@ class Game {
       "battle-2": "Declare Blockers",
       "battle-3": "Block Events",
       "battle-4": "Assign Damage",
+    }
+
+    static zones: Array<Zone> = ["hand", "deck", "disc", "supp", "play"];
+    static zoneNames: {[Zone]: string } = {
+      hand: "Hand",
+      deck: "Deck",
+      disc: "Discard",
+      supp: "Supplemental",
+      play: "Play",
     }
 
     ws: WS;
@@ -117,7 +125,7 @@ class Game {
         const { id } = c;
         let card: Card = {
           id,
-          cardId: ws.observable<?string>(c.cardId, ["card", id, "cardId"]),
+          card: ws.observable<any>(c.card, ["card", id, "card"]),
           owner: c.boolean,
           player: ws.observable<boolean>(c.player, ["card", id, "player"]),
           zone: ws.observable<Zone>(c.zone, ["card", id, "zone"]),
