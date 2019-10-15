@@ -4,6 +4,8 @@ import { observable } from "./hobo";
 import LobbyScreen from "./LobbyScreen";
 import { RightClickMenu } from "./rightClick";
 
+import "./hoverIntent";
+
 const screen = observable(LobbyScreen);
 const go = x => screen(x);
 

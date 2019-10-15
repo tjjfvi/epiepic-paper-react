@@ -1,0 +1,50 @@
+
+.disc.HPS
+  position absolute
+  right 0
+  width cardWidth
+  height s("calc(%s - 1px)", cardHeight)
+  max-width @width
+  max-height @height
+
+  &.p
+    bottom 0
+  &.o
+    top 0
+  
+  border 0px solid $grey
+
+  z-index 10
+
+  align-content center
+  flex-wrap wrap
+
+  transition height .5s, width .5s, max-height .5s, max-width .5s, border-width .2s, z-index .3s
+
+  &.hoverIntent
+  &.rightClicked
+  &.childRightClicked
+    &:not(.n0):not(.n1)
+      height 100vh
+      width (100vh/aspect)
+
+      z-index 11
+
+      border-left-width 2px
+
+      &.o
+        border-bottom-width 2px
+      &.p
+        border-top-width 2px
+
+  for num in 1 2 3 4 5 6 7 8 9 10
+    &.n{num}
+      .Card
+        max-height (100%/num)
+        max-width (100%/num)
+
+      &.hoverIntent
+      &.rightClicked
+      &.childRightClicked
+        max-width 225px*num
+        max-height 314px*num

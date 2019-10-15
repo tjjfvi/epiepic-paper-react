@@ -6,6 +6,7 @@ import Game from "./Game";
 import User from "./User";
 import HPS from "./HPS";
 import Deck from "./Deck";
+import Discard from "./Discard";
 import ws from "./ws";
 import { useValue } from "./hobo";
 import moveFuncs from "./moveFuncs";
@@ -22,7 +23,7 @@ const GameScreen = () => {
     <HPS menu={[]} game={game} zone={game.o.zones.play} className="o play"/>
     <HPS menu={[]} game={game} zone={game.o.zones.supp} className="o supp"/>
     <Deck player={game.o} className="o"/>
-    <div className="o disc"/>
+    <Discard menu={[]} game={game} zone={game.o.zones.disc} className="o"/>
 
     <User player={game.p} game={game}/>
     <HPS menu={[
@@ -46,7 +47,11 @@ const GameScreen = () => {
       moveFuncs.banish,
     ]} game={game} zone={game.p.zones.supp} className="p supp"/>
     <Deck player={game.p} className="p"/>
-    <div className="p disc"/>
+    <Discard menu={[
+      moveFuncs.hand,
+      moveFuncs.play,
+      moveFuncs.banish,
+    ]} game={game} zone={game.p.zones.disc} className="p"/>
 
     <Status game={game}/>
   </div>

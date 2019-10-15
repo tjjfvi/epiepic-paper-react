@@ -24,3 +24,4 @@ const HPS = ({ game, zone, className, menu }: Props) => {
 }
 
 export default HPS;
+export type { Props };
