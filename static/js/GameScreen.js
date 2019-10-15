@@ -33,7 +33,7 @@ const GameScreen = () => {
     <Discard menu={[]} game={game} zone={game.o.zones.disc} className="o"/>
 
     <User player={game.p} game={game}/>
-    <HPS menu={[
+    <HPS main={moveFuncs.playCardGold} menu={[
       moveFuncs.playCardGold,
       moveFuncs.disc,
       moveFuncs.supp,
@@ -47,14 +47,14 @@ const GameScreen = () => {
       moveFuncs.hand,
       moveFuncs.disc,
     ]} game={game} zone={game.p.zones.play} className="p play"/>
-    <HPS menu={[
+    <HPS main={moveFuncs.disc} menu={[
       moveFuncs.disc,
       moveFuncs.play,
       moveFuncs.hand,
       moveFuncs.banish,
     ]} game={game} zone={game.p.zones.supp} className="p supp"/>
     <Deck player={game.p} className="p"/>
-    <Discard menu={[
+    <Discard main={moveFuncs.hand} menu={[
       moveFuncs.hand,
       moveFuncs.play,
       moveFuncs.banish,

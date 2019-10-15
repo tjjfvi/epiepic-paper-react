@@ -12,13 +12,14 @@ type Props = {
   zone: Observable<Array<CardType>>,
   className?: string,
   menu: Array<MoveFunc>,
+  main?: MoveFunc,
 }
 
-const HPS = ({ game, zone, className, menu }: Props) => {
+const HPS = ({ game, zone, className, main, menu }: Props) => {
   zone.use();
   return (
     <div className={"HPS " + (className || "")}>
-      {zone().map(c => <Card game={game} menu={menu} key={c.id} card={c}/>)}
+      {zone().map(c => <Card game={game} main={main} menu={menu} key={c.id} card={c}/>)}
     </div>
   )
 }
