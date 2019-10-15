@@ -19,5 +19,33 @@
       width 128px
       height 128px
 
+    .gold
+    .health
+      position absolute
+      bottom 0px
+
+    .health
+      right 0px
+
+      border-color $green
+      color $green
+
+    .gold
+      left 0px
+
+      cursor pointer
+
+      border-color $yellow
+      color $yellow
+
+      transition border-color .2s, color .2s
+
+      &[data-g="0"]
+        border-color $grey
+        color $grey
+
+      &:before
+        content attr(data-g)
+
   .username
     color $white

@@ -1,0 +1,37 @@
+
+.NumberBadge
+  width 40px
+  height 40px
+
+  .Badge
+    position absolute
+    bottom 0
+    
+    border-color inherit
+
+    transition height .2s, bottom .2s, opacity .2s
+
+    input
+      width 40px
+      height 25px
+
+      background-color $black
+      text-align center
+      color $lightgrey
+      font-size 15px
+      padding 3px
+  
+      flex 0 0 auto
+  
+      color inherit
+      font-size inherit
+  
+      border none
+  
+    .a
+      cursor pointer
+      
+    &.hoverIntent
+      height 100px
+      z-index 2
+      bottom -30px

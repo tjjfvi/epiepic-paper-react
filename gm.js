@@ -59,7 +59,7 @@ async function setup(ws1, ws2){
   let genP = ws => ({
     user: ws.user,
     health: 30,
-    gold: 1,
+    gold: true,
     waitingOn: true,
     attention: false,
   });

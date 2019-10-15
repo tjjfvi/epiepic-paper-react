@@ -3,11 +3,14 @@
 .hand
 .deck
 .disc
+  transition border-color .2s
+
   &.o
     border-bottom 1px solid $grey
     .oGold ~ &
     .oGold ~ * &
       border-color $yellow
+      transition border-color .5s
   
   &.p
     border-top 1px solid $grey
