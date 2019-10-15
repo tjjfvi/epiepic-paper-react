@@ -26,7 +26,7 @@ Game.zones.map(zone => {
       deck: "",
       supp: "",
       disc: "evil",
-      hand: "good",
+      hand: "sage",
     }[zone],
   });
 })
