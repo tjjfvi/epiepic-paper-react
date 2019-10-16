@@ -9,6 +9,7 @@ type C<T> = Computed<T>;
 
 type Phase = "start" | "main" | "battle-0" | "battle-1" | "battle-2" | "battle-3" | "battle-4" | "end";
 type Zone = "hand" | "deck" | "disc" | "supp" | "play";
+type CardStatus = "prepared" | "expended" | "flipped";
 type Player = {
     n: boolean,
     user: any,
@@ -28,6 +29,15 @@ type Card = {
   zone: O<Zone>,
   player: O<boolean>,
   pos: O<number>,
+  damage: O<number>,
+  counters: O<number>,
+  offAdjust: O<number>,
+  defAdjust: O<number>,
+  inBattle: O<boolean>,
+  deploying: O<boolean>,
+  status: O<CardStatus>,
+  off: C<number>,
+  def: C<number>,
 }
 
 class Game {
@@ -52,6 +62,8 @@ class Game {
       supp: "Supplemental",
       play: "Play",
     }
+
+    static cardStatuses: Array<CardStatus> = ["prepared", "expended", "flipped"];
 
     ws: WS;
 
@@ -123,14 +135,31 @@ class Game {
       const { ws } = this;
       cards.map(c => {
         const { id } = c;
-        let card: Card = {
+        let _card: $Diff<Card, {off: any, def: any}> = {
           id,
           card: ws.observable<any>(c.card, ["card", id, "card"]),
           owner: c.boolean,
           player: ws.observable<boolean>(c.player, ["card", id, "player"]),
           zone: ws.observable<Zone>(c.zone, ["card", id, "zone"]),
           pos: ws.observable<number>(c.pos, ["card", id, "pos"]),
+          damage: ws.observable<number>(c.damage, ["card", id, "damage"]),
+          counters: ws.observable<number>(c.counters, ["card", id, "counters"]),
+          offAdjust: ws.observable<number>(c.offAdjust, ["card", id, "offAdjust"]),
+          defAdjust: ws.observable<number>(c.defAdjust, ["card", id, "defAdjust"]),
+          inBattle: ws.observable<boolean>(c.inBattle, ["card", id, "inBattle"]),
+          deploying: ws.observable<boolean>(c.deploying, ["card", id, "deploying"]),
+          status: ws.observable<CardStatus>(c.status, ["card", id, "status"]),
         };
+        let card: Card = Object.assign({}, _card, {
+          off: computed<number>(
+            () => _card.card() ? _card.card().offense + _card.offAdjust() + _card.counters() : 0,
+            v => _card.card() && _card.offAdjust(v - _card.card().offense - _card.counters()),
+          ),
+          def: computed<number>(
+            () => _card.card() ? _card.card().defense + _card.defAdjust() + _card.counters() : 0,
+            v => _card.card() && _card.defAdjust(v - _card.card().defense - _card.counters()),
+          ),
+        });
         this.cards.add(card);
         const updatePos = pos => {
           this.minPos = Math.min(this.minPos, pos);
@@ -138,6 +167,14 @@ class Game {
         }
         updatePos(c.pos);
         card.pos.ee.on("change", updatePos);
+        card.zone.ee.on("change", () => {
+          card.damage(0);
+          card.counters(0);
+          card.offAdjust(0);
+          card.defAdjust(0);
+          card.inBattle(false);
+          card.status("prepared");
+        })
       })
       this.cardCount(this.cardCount() + cards.length);
     }

@@ -15,7 +15,18 @@ async function handle(ws, type, ...data){
       ws.o.s(type, prop, val);
     }
   }
-  if(type === "card" && ~["zone", "player", "pos"].indexOf(data[1])) {
+  if(type === "card" && ~[
+    "zone",
+    "player",
+    "pos",
+    "damage",
+    "counters",
+    "offAdjust",
+    "defAdjust",
+    "status",
+    "deploying",
+    "inBattle"
+  ].indexOf(data[1])) {
     let [id, prop, val] = data;
     let card = game.cards.find(c => c.id === id);
     if(!card) return;
@@ -40,6 +51,12 @@ async function handle(ws, type, ...data){
       player: !!ws.n,
       zone: "deck",
       pos: Math.random(),
+      damage: 0,
+      counters: 0,
+      offAdjust: 0,
+      defAdjust: 0,
+      inBattle: false,
+      status: "prepared",
     }))));
     if(!ws.o.deck) return;
     game.cards.push(...ws.deck, ...ws.o.deck);

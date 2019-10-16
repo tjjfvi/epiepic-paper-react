@@ -11,3 +11,12 @@
 
   &.o
     flex-direction row
+
+  &.play
+    .Card
+    &.o .Card.inBattle
+      align-self flex-end
+  
+    .Card.inBattle
+    &.o .Card
+      align-self flex-start

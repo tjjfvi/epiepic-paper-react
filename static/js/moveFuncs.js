@@ -67,6 +67,42 @@ moveFuncs.playCardGold = (game: Game, card: Card) => ({
   show: computed(() => canPlayCard(game, card)),
 });
 
+Game.cardStatuses.map(status => {
+  let word = {
+    prepared: "prepare",
+    expended: "expend",
+    flipped: "flip",
+  }[status];
+  moveFuncs[word] = (game: Game, card: Card) => ({
+    name: word[0].toUpperCase() + word.slice(1),
+    func: () => {
+      card.status(status);
+    },
+    show: computed(() => card.status() !== status),
+  })
+});
+
+let canBattle = (game: Game, card: Card) =>
+  card.inBattle() ||
+    ((
+      (game.p.hasTurn() && !!~["main", "battle-0"].indexOf(game.phase())) ||
+      (game.o.hasTurn() && game.phase() === "battle-1")
+    ) && !game.o.waitingOn() && game.p.hasInitiative())
+moveFuncs.battle = (game: Game, card: Card) => ({
+  name: "Battle",
+  func: () => {
+    if(!canBattle(game, card))
+      return;
+    card.inBattle.toggle();
+    if(game.phase() === "main" && card.inBattle()) {
+      game.phase("battle-0");
+      game.p.waitingOn(true);
+      game.o.waitingOn(false);
+    }
+  },
+  show: computed(() => canBattle(game, card)),
+});
+
 (moveFuncs: {[string]: MoveFunc})
 
 export default moveFuncs;

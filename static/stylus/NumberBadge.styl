@@ -3,11 +3,22 @@
   width 40px
   height 40px
 
+  border-radius 40px
+  background-color $black
+
+  z-index 1
+
+  transition opacity .2s
+
+  &.hoverIntent
+    z-index 2
+
   .Badge
     position absolute
     bottom 0
     
     border-color inherit
+    background-color inherit
 
     transition height .2s, bottom .2s, opacity .2s
 
@@ -15,7 +26,7 @@
       width 40px
       height 25px
 
-      background-color $black
+      background-color inherit
       text-align center
       color $lightgrey
       font-size 15px
@@ -33,5 +44,4 @@
       
     &.hoverIntent
       height 100px
-      z-index 2
       bottom -30px

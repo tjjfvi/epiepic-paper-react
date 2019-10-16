@@ -6,6 +6,10 @@ import type { Card as CardType } from "./Game";
 import rightClick from "./rightClick";
 import type { MoveFunc } from "./moveFuncs";
 import double from "./double";
+import NumberBadge from "./NumberBadge";
+import { computed as c } from "./hobo";
+
+type b = boolean;
 
 type Props = {
   game: Game,
@@ -15,14 +19,24 @@ type Props = {
 }
 const Card = ({ game, card, menu, main }: Props) => {
   card.card.use();
+  card.status.use();
+  card.inBattle.use();
   let m = menu.map(f => f(game, card));
   return (
-    <div className="Card" onClick={double(
+    <div className={(card.inBattle() ? "inBattle" : "") + " Card " + card.status()} onClick={double(
       () => main && main(game, card).func(),
       () => {},
     )} {...rightClick(m)}>
       <img className="_" src="/314x314.jpg"/>
       <img src={`/images/${card.card()?._id || "back"}`}/>
+      <div className="badges">
+        <NumberBadge value={card.damage} show={c<b>(() => !!card.damage())} className="damage"/>
+        <NumberBadge value={card.counters} show={c<b>(() => !!card.counters())} className="counters"/>
+        <NumberBadge value={card.off} show={c<b>(() => !!card.offAdjust() || !!card.counters())} className="off"/>
+        <NumberBadge value={card.def} show={c<b>(() => !!card.defAdjust() || !!card.counters())} className="def"/>
+        <NumberBadge value={card.offAdjust} className="offAdjust"/>
+        <NumberBadge value={card.defAdjust} className="defAdjust"/>
+      </div>
     </div>
   )
 }
