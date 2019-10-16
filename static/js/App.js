@@ -5,6 +5,7 @@ import LobbyScreen from "./LobbyScreen";
 import { RightClickMenu } from "./rightClick";
 
 import "./hoverIntent";
+import "./registerSW";
 
 const screen = observable(LobbyScreen);
 const go = x => screen(x);

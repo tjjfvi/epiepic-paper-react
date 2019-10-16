@@ -3,6 +3,7 @@ import React from "react";
 import { useValue, useObservable } from "./hobo";
 import ws from "./ws";
 import DeckChoiceScreen from "./DeckChoiceScreen";
+import { UploadButton } from "./registerSW";
 import { go } from "./App";
 
 const Game = ({ game }) => {
@@ -38,6 +39,7 @@ const LobbyScreen = () => {
     status() === "hosting" ?
       <div className="waiting">Waiting for someone to join...</div> :
       <div className="Lobby">
+        <UploadButton/>
         <div className="join">
           <h1>Join an existing game</h1>
           {games().map((game, i) => <Game game={game} key={i}/>)}
