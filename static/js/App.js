@@ -2,7 +2,7 @@
 import React from "react";
 import { observable } from "./hobo";
 import LobbyScreen from "./LobbyScreen";
-import { RightClickMenu } from "./rightClick";
+import { RightClickMenu, appEventBindings } from "./rightClick";
 
 import "./hoverIntent";
 import "./registerSW";
@@ -13,10 +13,10 @@ const go = x => screen(x);
 const App = () => {
   screen.use();
   const Screen = screen();
-  return <>
+  return <div {...appEventBindings}>
     <Screen/>
     <RightClickMenu/>
-  </>;
+  </div>;
 }
 
 export default App;

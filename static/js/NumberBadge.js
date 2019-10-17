@@ -11,14 +11,12 @@ type Props = {
 const NumberBadge = ({ value, show, className = "" }: Props) => {
   value.use();
   let s = show ? show.use()() ? "show" : "hide" : "";
-  let input = React.useRef();
-  const f = () => input.current && input.current.focus();
   return (
-    <div className={s + " NumberBadge " + className} onClick={f}>
+    <div className={s + " NumberBadge " + className} onClick={e => e.stopPropagation()}>
       <div className="Badge ">
-        <span className="a" onClick={() => (value.inc(), f())}>+</span>
-        <input ref={input} onChange={e => value(+e.currentTarget.value)} value={value()}/>
-        <span className="a" onClick={() => (value.dec(), f())}>–</span>
+        <span className="a" onClick={() => value.inc()}>+</span>
+        <input onChange={e => value(+e.currentTarget.value)} value={value()}/>
+        <span className="a" onClick={() => value.dec()}>–</span>
       </div>
     </div>
   )

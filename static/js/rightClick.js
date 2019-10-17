@@ -31,12 +31,13 @@ const RightClickMenu = () => {
 
 const rightClick = (menuItems: Array<MenuItem>) => ({
   onContextMenu: (e: SyntheticMouseEvent<>)  => {
-    e.preventDefault();
     const el = e.currentTarget;
-    $(el).addClass("rightClicked").parents().addClass("childRightClicked");
     let height = 30 * menuItems.length + 1;
     let vh = $("body").height();
-    menu(menuItems);
+    setTimeout(() => {
+      menu(menuItems)
+      $(el).addClass("rightClicked").parents().addClass("childRightClicked");
+    });
     let left = e.clientX;
     let top = e.clientY;
     offset({
@@ -47,18 +48,20 @@ const rightClick = (menuItems: Array<MenuItem>) => ({
   },
 });
 
-$("*").on("contextmenu", e => e.preventDefault());
-
-$("*").on("click contextmenu", () => {
+const f = () => {
   $(".rightClicked, .childRightClicked").removeClass("rightClicked childRightClicked");
-  let old = menu();
-  setTimeout(() => {
-    if(old === menu())
-      menu([])
-  });
-})
+  menu([]);
+};
+
+const appEventBindings = {
+  onClick: f,
+  onContextMenu: (e: SyntheticEvent<>) => {
+    e.preventDefault();
+    f();
+  }
+};
 
 
 export default rightClick;
-export { RightClickMenu };
+export { RightClickMenu, appEventBindings };
 export type { MenuItem };
