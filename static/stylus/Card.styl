@@ -77,10 +77,12 @@
         opacity 1
 
     .damage
+    .offAdjust
+    .defAdjust
       top 22%
       color $white
       border-color @color
-    
+
     .off
     .offAdjust
       left 4%
@@ -92,6 +94,16 @@
       right 4%
       top 70%
       background-color $defense
+
+    .offAdjust
+      color $offense
+      border-color @color
+      background-color white
+    
+    .defAdjust
+      color $defense
+      border-color @color
+      background-color white
 
     .counters
       top 50%
