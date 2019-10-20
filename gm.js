@@ -64,7 +64,7 @@ async function handle(ws, type, ...data){
       ...game,
       p0: { ...game.p0, ws: null },
       p1: { ...game.p1, ws: null },
-      cards: game.cards.map(c => ({ ...c, cardId: null }))
+      cards: game.cards.map(c => ({ ...c, card: null }))
     };
     [ws, ws.o].map(ws => ws.s("init", ws.n, obj));
   }
