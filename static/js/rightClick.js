@@ -8,7 +8,7 @@ import $ from "jquery";
 type MenuItem = {
     id?: number,
     func: any=>any,
-    name: string,
+    name: string | Observable<string>,
     class?: string,
     show?: Observable<boolean>,
 }
@@ -18,7 +18,8 @@ const offset = observable<{ left: number, top: number }>({ left: 0, top: 0 });
 
 const RightClickMenuItem = ({ item }) => {
   let show = !item.show || item.show.use()();
-  return show ? <span className={item.class} onClick={item.func}>{item.name}</span> : null;
+  let name = typeof item.name === "string" ? item.name : item.name()
+  return show ? <span className={item.class} onClick={item.func}>{name}</span> : null;
 }
 
 const RightClickMenu = () => {

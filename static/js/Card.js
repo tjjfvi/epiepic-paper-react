@@ -4,6 +4,7 @@ import React from "react";
 import Game from "./Game";
 import type { Card as CardType } from "./Game";
 import rightClick from "./rightClick";
+import moveFuncs from "./moveFuncs";
 import type { MoveFunc } from "./moveFuncs";
 import double from "./double";
 import NumberBadge from "./NumberBadge";
@@ -19,11 +20,17 @@ type Props = {
 }
 const Card = ({ game, card, menu, main }: Props) => {
   card.card.use();
+  card.marked.use();
   card.status.use();
   card.inBattle.use();
-  let m = menu.map(f => f(game, card));
+  let m = [moveFuncs.mark, ...menu].map(f => f(game, card));
   return (
-    <div className={(card.inBattle() ? "inBattle" : "") + " Card " + card.status()} onClick={double(
+    <div className={
+      (card.marked() ? "marked " : "") +
+      (card.inBattle() ? "inBattle" : "") +
+      " Card " +
+      card.status()
+    } onClick={double(
       () => main && main(game, card).func(),
       () => {},
     )} {...rightClick(m)}>

@@ -25,7 +25,8 @@ async function handle(ws, type, ...data){
     "defAdjust",
     "status",
     "deploying",
-    "inBattle"
+    "inBattle",
+    "marked",
   ].indexOf(data[1])) {
     let [id, prop, val] = data;
     let card = game.cards.find(c => c.id === id);
@@ -57,6 +58,7 @@ async function handle(ws, type, ...data){
       defAdjust: 0,
       inBattle: false,
       status: "prepared",
+      marked: false,
     }))));
     if(!ws.o.deck) return;
     game.cards.push(...ws.deck, ...ws.o.deck);

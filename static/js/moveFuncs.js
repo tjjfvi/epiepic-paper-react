@@ -103,6 +103,13 @@ moveFuncs.battle = (game: Game, card: Card) => ({
   show: computed(() => canBattle(game, card)),
 });
 
+moveFuncs.mark = (game: Game, card: Card) => ({
+  name: computed(() => card.marked() ? "Unmark" : "Mark"),
+  func: () => {
+    card.marked.toggle();
+  }
+});
+
 (moveFuncs: {[string]: MoveFunc})
 
 export default moveFuncs;

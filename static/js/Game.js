@@ -38,6 +38,7 @@ type Card = {
   status: O<CardStatus>,
   off: C<number>,
   def: C<number>,
+  marked: O<boolean>,
 }
 
 class Game {
@@ -149,6 +150,7 @@ class Game {
           inBattle: ws.observable<boolean>(c.inBattle, ["card", id, "inBattle"]),
           deploying: ws.observable<boolean>(c.deploying, ["card", id, "deploying"]),
           status: ws.observable<CardStatus>(c.status, ["card", id, "status"]),
+          marked: ws.observable<boolean>(c.marked, ["card", id, "marked"]),
         };
         let card: Card = Object.assign({}, _card, {
           off: computed<number>(
