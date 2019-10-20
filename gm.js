@@ -4,12 +4,20 @@ const uuidv4 = require("uuid/v4");
 
 async function handle(ws, type, ...data){
   let { game } = ws;
+  let willPass = v => {
+    game.willPass = v;
+    ws.s("willPass", v);
+    ws.o.s("willPass", v);
+  };
   if(~["turn", "phase", "initiative"].indexOf(type)) {
+    willPass(type !== "initiative");
     game[type] = data[0];
     ws.o.s(type, data[0]);
   }
   if(type === "p0" || type === "p1") {
     let [prop, val] = data;
+    if(~["gold", "health"].indexOf(prop))
+      willPass(true);
     if(~["gold", "waitingOn", "attention", "health"].indexOf(prop)) {
       game[type][prop] = val;
       ws.o.s(type, prop, val);
@@ -28,6 +36,7 @@ async function handle(ws, type, ...data){
     "inBattle",
     "marked",
   ].indexOf(data[1])) {
+    willPass(true);
     let [id, prop, val] = data;
     let card = game.cards.find(c => c.id === id);
     if(!card) return;
@@ -59,6 +68,7 @@ async function handle(ws, type, ...data){
       inBattle: false,
       status: "prepared",
       marked: false,
+      willPass: true,
     }))));
     if(!ws.o.deck) return;
     game.cards.push(...ws.deck, ...ws.o.deck);

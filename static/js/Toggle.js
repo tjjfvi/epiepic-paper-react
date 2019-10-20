@@ -5,6 +5,7 @@ import type { Observable } from "./hobo";
 
 type Props = {
     value: Observable<boolean>,
+    hide?: Observable<boolean>,
     className?: string,
     toggle?: boolean,
     toggleOn?: boolean,
@@ -19,9 +20,10 @@ const Toggle = ({
   toggleOff = true,
   ...props
 }: Props) => {
+  let hide = props.hide ? props.hide.use()() : false;
   value.use();
   return <div
-    className={className + " " + (value() ?? "").toString()}
+    className={(hide ? "hide " : "") + className + " " + (value() ?? "").toString()}
     onClick={() => {
       if(!toggle) return;
       if(value() && !toggleOff) return;

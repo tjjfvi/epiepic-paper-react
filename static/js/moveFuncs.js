@@ -86,7 +86,7 @@ let canBattle = (game: Game, card: Card) =>
   card.inBattle() ||
     ((
       (game.p.hasTurn() && !!~["main", "battle-0"].indexOf(game.phase())) ||
-      (game.o.hasTurn() && game.phase() === "battle-1")
+      (game.o.hasTurn() && game.phase() === "battle-2")
     ) && !game.o.waitingOn() && game.p.hasInitiative())
 moveFuncs.battle = (game: Game, card: Card) => ({
   name: "Battle",

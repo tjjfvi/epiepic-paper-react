@@ -72,7 +72,7 @@ class Game {
     turn: O<boolean>;
     initiative: O<boolean>;
     phase: O<Phase>;
-    phaseName: O<string>
+    willPass: O<boolean>;
     p: Player;
     o: Player;
     p0: Player;
@@ -83,6 +83,13 @@ class Game {
     minPos: number = 0;
     maxPos: number = 0;
 
+    phaseName: C<string>;
+    hideInitiative: C<boolean>;
+    canProceed: C<boolean>;
+    shouldProceed: C<boolean>;
+    canPass: C<boolean>;
+    willProceed: C<boolean>;
+
     constructor(ws: WS){
       this.ws = ws;
       ws.on("message", ([type, ...data]) => {
@@ -92,7 +99,7 @@ class Game {
           console.log(this.turn());
           this.initiative = ws.observable<boolean>(g.initiative, ["initiative"])
           this.phase = ws.observable<Phase>(g.phase, ["phase"])
-          this.phaseName = computed(() => Game.phaseNames[this.phase()])
+          this.willPass = ws.observable<boolean>(g.willPass, ["willPass"]);
           this.addCards(...g.cards);
           let p = (n: boolean): Player => {
             let pn = "p" + +n;
@@ -125,8 +132,33 @@ class Game {
           let [P, O] = pn ? [this.p1, this.p0] : [this.p0, this.p1];
           this.p = P;
           this.o = O;
-          console.log(this.p);
-          console.log("ready")
+
+          this.phaseName = computed(() => Game.phaseNames[this.phase()]);
+          this.hideInitiative = computed(() => ~[
+            "start",
+            "battle-0",
+            "battle-2",
+            "battle-4",
+            "end"
+          ].indexOf(this.phase()));
+          this.canProceed = computed(() =>
+            (this.p.hasInitiative() || this.hideInitiative()) &&
+            !this.o.waitingOn() &&
+            !this.p.attention() &&
+            !this.o.attention() &&
+          true);
+          this.shouldProceed = computed(() =>
+            this.canProceed() &&
+            this.hideInitiative() &&
+            !this.p.waitingOn() &&
+          true);
+          this.canPass = computed(() =>
+            this.p.hasInitiative() && !this.hideInitiative()
+          );
+          this.willProceed = computed(() =>
+            this.canPass() && !this.willPass()
+          );
+
           this.ready(true);
         }
       })
@@ -191,7 +223,7 @@ class Game {
         "battle-2": ["battle-3", false, false, false],
         "battle-3": ["battle-4", true, true, true],
         "battle-4": ["main", true, false, false],
-        end: ["start", true, false, true],
+        end: ["start", false, false, true],
       }[phase];
       change[1] = !(+change[1] ^ +this.turn());
       if(this.turn()) {
@@ -199,15 +231,45 @@ class Game {
         change[2] = change[3]
         change[3] = x;
       }
-      console.log("hi.")
       this.phase(change[0]);
       this.initiative(change[1]);
       this.p0.waitingOn(change[2]);
       this.p1.waitingOn(change[3]);
       this.p0.attention(false);
       this.p1.attention(false);
-      if(phase === "end")
+      if(phase === "start")
+        [...this.cards].filter(c => c.player() === this.turn()).map(c => {
+          c.status("prepared");
+          c.deploying(false);
+        })
+      if(phase === "end") {
         this.turn.toggle();
+        this.o.gold(true);
+        this.p.gold(true);
+        [...this.cards].filter(c => c.damage()).map(c => c.damage(0))
+      }
+      if(phase === "battle-0")
+        [...this.cards].filter(c => c.player() === this.turn() && c.inBattle()).map(c => c.status("expended"));
+      if(phase === "battle-2")
+        [...this.cards].filter(c => c.player() !== this.turn() && c.inBattle()).map(c => c.status("flipped"));
+      if(phase === "battle-4")
+        if(phase === "battle-4")
+          [...this.cards].filter(c => c.zone() === "play" && c.inBattle()).map(c => {
+            c.inBattle(false);
+            if(!c.marked())
+              return;
+            c.zone("disc")
+            c.pos(this.maxPos);
+            c.marked(false);
+          })
+    }
+
+    smartPass(){
+      this.p.waitingOn(false);
+      if(!this.o.waitingOn())
+        this.hideInitiative() || !this.willPass() ?
+          this.canProceed() && this.cyclePhase() :
+          this.canPass() && this.initiative.toggle()
     }
 
 }
