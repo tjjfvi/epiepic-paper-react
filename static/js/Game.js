@@ -219,7 +219,7 @@ class Game {
         start: ["main", true, false, false],
         main: ["end", true, true, true],
         "battle-0": ["battle-1", true, false, false],
-        "battle-1": ["battle-2", false, false, false],
+        "battle-1": ["battle-2", false, false, true],
         "battle-2": ["battle-3", false, false, false],
         "battle-3": ["battle-4", true, true, true],
         "battle-4": ["main", true, false, false],
