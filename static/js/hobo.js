@@ -20,7 +20,11 @@ class _Observable<T> extends Function {
 
     use(){
       let [, setState] = React.useState({});
-      this.ee.once("change", () => setState({}));
+      let update = () => setState({});
+      React.useEffect(() => {
+        this.ee.on("change", update);
+        return () => void this.ee.removeListener("change", update)
+      }, [])
       return this;
     }
 
@@ -78,6 +82,7 @@ const observable = <T/**/>(val: T): Observable<T> => {
   o.o = o;
   o.val = val;
   o.ee = new EventEmmiter();
+  o.ee.setMaxListeners(Infinity);
   return o;
 }
 
@@ -93,7 +98,8 @@ const computed = <T/**/>(func: () => T, writeFunc?: T => any) => {
       writeFunc(val);
       return val;
     } else {
-      return o();
+      if(cur) cur.addDep(c);
+      return o.val;
     }
   }, _Computed.prototype);
   c.o = c;
