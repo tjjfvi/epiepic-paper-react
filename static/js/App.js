@@ -1,6 +1,6 @@
 
 import React from "react";
-import { observable } from "./hobo";
+import { observable } from "rhobo";
 import LobbyScreen from "./LobbyScreen";
 import { RightClickMenu, appEventBindings } from "./rightClick";
 

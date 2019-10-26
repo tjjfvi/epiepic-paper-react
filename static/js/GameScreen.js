@@ -8,7 +8,7 @@ import HPS from "./HPS";
 import Deck from "./Deck";
 import Discard from "./Discard";
 import ws from "./ws";
-import { useValue } from "./hobo";
+import { useValue } from "rhobo";
 import moveFuncs from "./moveFuncs";
 
 const GameStateHelper = ({ game }: { game: Game }) => <div className={

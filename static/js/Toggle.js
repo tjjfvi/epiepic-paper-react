@@ -1,7 +1,7 @@
 /* @flow */
 
 import React from "react";
-import type { Observable } from "./hobo";
+import type { Observable } from "rhobo";
 
 type Props = {
     value: Observable<boolean>,

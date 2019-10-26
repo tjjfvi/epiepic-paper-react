@@ -2,7 +2,7 @@
 
 import Game from "./Game";
 import type { Card } from "./Game";
-import { computed } from "./hobo";
+import { computed } from "rhobo";
 import type { MenuItem } from "./rightClick";
 
 type MoveFunc = (Game, Card) => MenuItem;

@@ -3,7 +3,7 @@
 import React from "react";
 import Toggle from "./Toggle";
 import Game from "./Game";
-import type { Observable } from "./hobo";
+import type { Observable } from "rhobo";
 import double from "./double";
 
 type Props = {

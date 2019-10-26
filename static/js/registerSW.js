@@ -1,6 +1,6 @@
 
 import React from "react";
-import { observable } from "./hobo";
+import { observable } from "rhobo";
 import rightClick from "./rightClick";
 
 const showUpload = observable(false);

@@ -1,7 +1,7 @@
 /* @flow */
 
 import React from "react";
-import { useObservable } from "./hobo";
+import { useObservable } from "rhobo";
 import ws from "./ws";
 import { go } from "./App";
 import GameScreen from "./GameScreen";

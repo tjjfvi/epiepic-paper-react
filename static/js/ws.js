@@ -2,8 +2,8 @@
 
 import React from "react";
 import EventEmitter from "events";
-import { observable, computed } from "./hobo";
-import type { Observable } from "./hobo";
+import { observable, computed } from "rhobo";
+import type { Observable } from "rhobo";
 import LoginScreen from "./LoginScreen";
 // import { go } from "./App";
 

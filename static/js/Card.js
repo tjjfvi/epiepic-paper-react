@@ -8,7 +8,7 @@ import moveFuncs from "./moveFuncs";
 import type { MoveFunc } from "./moveFuncs";
 import double from "./double";
 import NumberBadge from "./NumberBadge";
-import { computed as c } from "./hobo";
+import { computed as c } from "rhobo";
 
 type b = boolean;
 

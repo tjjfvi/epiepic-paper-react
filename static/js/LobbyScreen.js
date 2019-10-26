@@ -1,6 +1,6 @@
 
 import React from "react";
-import { useValue, useObservable } from "./hobo";
+import { useValue, useObservable } from "rhobo";
 import ws from "./ws";
 import DeckChoiceScreen from "./DeckChoiceScreen";
 import { UploadButton } from "./registerSW";

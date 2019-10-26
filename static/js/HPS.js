@@ -3,7 +3,7 @@
 import React from "react";
 import Game from "./Game";
 import type { Card as CardType } from "./Game"
-import type { Observable } from "./hobo";
+import type { Observable } from "rhobo";
 import Card from "./Card";
 import type { MoveFunc } from "./moveFuncs";
 

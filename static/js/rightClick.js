@@ -1,8 +1,8 @@
 /* @flow */
 
 import React from "react";
-import { observable } from "./hobo";
-import type { Observable } from "./hobo";
+import { observable } from "rhobo";
+import type { Observable } from "rhobo";
 import $ from "jquery";
 
 type MenuItem = {

@@ -1,7 +1,7 @@
 /* @flow */
 
-import { observable, computed } from "./hobo";
-import type { Observable, Computed } from "./hobo";
+import { observable, computed } from "rhobo";
+import type { Observable, Computed } from "rhobo";
 import { WS } from "./ws";
 
 type O<T> = Observable<T>;
