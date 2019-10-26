@@ -17,6 +17,12 @@ const gm = require("./gm");
 
 const { BASE_URL, API_BASE_URL, DEBUG } = process.env;
 
+const cardDataPromise = fetch(API_BASE_URL + "api/card/.json")
+  .then(r => r.text())
+  .then(cardData => fs.writeFile(__dirname + "/static/cardData.js",
+    "export default JSON.parse(" + JSON.stringify(cardData) + ");"
+  ));
+
 const b = browserify(__dirname + "/static/js/index.js", {
   entries: [
     "node_modules/babel-polyfill",
@@ -43,7 +49,8 @@ const b = browserify(__dirname + "/static/js/index.js", {
 b.on("update", bundle);
 bundle();
 
-function bundle(){
+async function bundle(){
+  await cardDataPromise;
   console.log("Bundling client JS...");
   b.bundle()
     .on("end", () => console.log("Bundled client JS"))

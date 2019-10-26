@@ -52,6 +52,27 @@ async function handle(ws, type, ...data){
       }
     }
   }
+  if(type === "newCard") {
+    let [cardData, owner, player, zone, pos] = data;
+    let card = {
+      id: uuidv4(),
+      card: cardData,
+      owner,
+      player,
+      zone,
+      pos,
+      damage: 0,
+      counters: 0,
+      offAdjust: 0,
+      defAdjust: 0,
+      inBattle: false,
+      status: "prepared",
+      marked: false,
+    };
+    game.cards.push(card);
+    ws.s("newCard", card);
+    ws.o.s("newCard", card);
+  }
   if(type === "deck") {
     if(ws.deck) return;
     ws.deck = [].concat(...data[0].map(({ count, card }) => [...Array(count)].map(() => ({
@@ -68,7 +89,6 @@ async function handle(ws, type, ...data){
       inBattle: false,
       status: "prepared",
       marked: false,
-      willPass: true,
     }))));
     if(!ws.o.deck) return;
     game.cards.push(...ws.deck, ...ws.o.deck);
@@ -98,6 +118,7 @@ async function setup(ws1, ws2){
     turn: false,
     phase: "start",
     initiative: false,
+    willPass: true,
     cards: [],
   });
   // games[game._id.toString()] = game;

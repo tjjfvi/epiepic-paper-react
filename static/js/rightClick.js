@@ -35,17 +35,16 @@ const rightClick = (menuItems: Array<MenuItem>) => ({
     const el = e.currentTarget;
     let height = 30 * menuItems.length + 1;
     let vh = $("body").height();
-    setTimeout(() => {
-      menu(menuItems)
-      $(el).addClass("rightClicked").parents().addClass("childRightClicked");
-    });
+    menu(menuItems)
+    $(el).addClass("rightClicked").parents().addClass("childRightClicked");
     let left = e.clientX;
     let top = e.clientY;
     offset({
       left,
       top: Math.min(top, vh - height),
     })
-    e.persist();
+    e.preventDefault();
+    e.stopPropagation();
   },
 });
 

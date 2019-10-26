@@ -3,12 +3,13 @@
 import { observable, computed } from "rhobo";
 import type { Observable, Computed } from "rhobo";
 import { WS } from "./ws";
+import cardData from "./cardData";
 
 type O<T> = Observable<T>;
 type C<T> = Computed<T>;
 
 type Phase = "start" | "main" | "battle-0" | "battle-1" | "battle-2" | "battle-3" | "battle-4" | "end";
-type Zone = "hand" | "deck" | "disc" | "supp" | "play";
+type Zone = "hand" | "deck" | "disc" | "supp" | "play" | "none";
 type CardStatus = "prepared" | "expended" | "flipped";
 type Player = {
     n: boolean,
@@ -161,6 +162,8 @@ class Game {
 
           this.ready(true);
         }
+        if(type === "newCard")
+          this.addCards(data[0]);
       })
     }
 
@@ -194,6 +197,10 @@ class Game {
             v => _card.card() && _card.defAdjust(v - _card.card().defense - _card.counters()),
           ),
         });
+        card.zone.ee.on("change", v => {
+          if(card.card() && card.card().packCode === "tokens" && v !== "none")
+            card.zone("none");
+        })
         this.cards.add(card);
         const updatePos = pos => {
           this.minPos = Math.min(this.minPos, pos);
@@ -270,6 +277,16 @@ class Game {
         this.hideInitiative() || !this.willPass() ?
           this.canProceed() && this.cyclePhase() :
           this.canPass() && this.initiative.toggle()
+    }
+
+    tokenMenu(n: boolean){
+      return cardData.filter(o => o.packCode === "tokens").map(c => ({
+        name: c.name,
+        class: c.faction.toLowerCase(),
+        func: () => {
+          this.ws.s("newCard", c, n, n, "play", ++this.maxPos);
+        }
+      }))
     }
 
 }
