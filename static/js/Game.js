@@ -174,7 +174,7 @@ class Game {
         let _card: $Diff<Card, {off: any, def: any}> = {
           id,
           card: ws.observable<any>(c.card, ["card", id, "card"]),
-          owner: c.boolean,
+          owner: c.owner,
           player: ws.observable<boolean>(c.player, ["card", id, "player"]),
           zone: ws.observable<Zone>(c.zone, ["card", id, "zone"]),
           pos: ws.observable<number>(c.pos, ["card", id, "pos"]),

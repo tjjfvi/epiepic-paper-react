@@ -18,6 +18,7 @@ Game.zones.map(zone => {
       disc: card.zone() === "play" ? "Break" : "Discard",
     }[zone],
     func: () => {
+      card.player(card.owner);
       card.pos(game.maxPos + 1);
       card.zone(zone);
     },
@@ -110,6 +111,11 @@ moveFuncs.mark = (game: Game, card: Card) => ({
   func: () => {
     card.marked.toggle();
   }
+});
+
+moveFuncs.changeControl = (game: Game, card: Card) => ({
+  name: "Change Control",
+  func: () => void card.player.toggle(),
 });
 
 (moveFuncs: {[string]: MoveFunc})

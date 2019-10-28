@@ -42,10 +42,11 @@ const GameScreen = () => {
       moveFuncs.banish,
     ]} game={game} zone={game.p.zones.hand} className="p hand"/>
     <HPS main={moveFuncs.battle} cardMenu={[
-      moveFuncs.battle,
       moveFuncs.prepare,
       moveFuncs.expend,
       moveFuncs.flip,
+      moveFuncs.battle,
+      moveFuncs.changeControl,
       moveFuncs.supp,
       moveFuncs.banish,
       moveFuncs.hand,
