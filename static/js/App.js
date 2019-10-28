@@ -6,6 +6,7 @@ import { RightClickMenu, appEventBindings } from "./rightClick";
 
 import "./hoverIntent";
 import "./registerSW";
+import "./styleReload";
 
 const screen = observable(LobbyScreen);
 const go = x => screen(x);

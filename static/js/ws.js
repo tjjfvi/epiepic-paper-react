@@ -28,7 +28,8 @@ class WS extends EventEmitter {
     ws.onmessage = ({ data: msg }: { data: any }) => {
       const data = JSON.parse(msg);
       if(data[0] === "ping") return;
-      console.log("<", ...data);
+      if(data[0] !== "style")
+        console.log("<", ...data);
       this.emit("message", data);
       if(data[0] === "login")
         go(LoginScreen);

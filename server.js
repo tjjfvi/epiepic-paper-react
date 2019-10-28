@@ -23,6 +23,8 @@ const cardDataPromise = fetch(API_BASE_URL + "api/card/.json")
     "export default JSON.parse(" + JSON.stringify(cardData) + ");"
   ));
 
+let wss;
+
 const b = browserify(__dirname + "/static/js/index.js", {
   entries: [
     "node_modules/babel-polyfill",
@@ -71,6 +73,8 @@ async function bundleStylus(){
       },
     }
   );
+  if(wss)
+    wss.all.map(ws => ws.s("style", css));
   await fs.writeFile(__dirname + "/static/bundle.css", css);
   console.log("Bundled stylus");
 }
@@ -84,7 +88,7 @@ if(DEBUG) watch(__dirname + "/static/stylus/", {
 const app = express();
 require("express-ws")(app);
 app.use(express.static(__dirname + "/static/"));
-const wss = {
+wss = {
   waiting: [],
   hosting: [],
   byId:    [],
