@@ -40,6 +40,7 @@ const GameScreen = () => {
     moveFuncs.banish,
     moveFuncs.hand,
     moveFuncs.disc,
+    moveFuncs.transform,
   ];
   return <div className="Game">
     <GameStateHelper game={game}/>

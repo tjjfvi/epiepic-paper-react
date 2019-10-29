@@ -122,6 +122,16 @@ moveFuncs.changeControl = (game: Game, card: Card) => ({
   },
 });
 
+moveFuncs.transform = (game: Game, card: Card) => ({
+  name: "Transform",
+  func: () => {
+    let p = card.player();
+    moveFuncs.banish(game, card).func();
+    game.tokenMenu(p).find(x => x.name === "Wolf Token").func();
+  },
+  class: "wild",
+});
+
 (moveFuncs: {[string]: MoveFunc})
 
 export default moveFuncs;
