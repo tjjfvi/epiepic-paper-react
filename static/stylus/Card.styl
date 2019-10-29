@@ -111,6 +111,24 @@
     .counters
       top 50%
       background-color $counters
+    
+    .revealed
+      position absolute
+      bottom 12.5px
+      
+      width 20px
+      height 20px
+
+      border-width 3px
+      border-color $black
+      background $white
+
+      opacity 0
+
+      transition opacity .2s
+
+      &.true
+        opacity 1
 
 
 .play .Card.rightClicked .NumberBadge

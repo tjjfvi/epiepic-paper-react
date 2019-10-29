@@ -8,8 +8,9 @@ import moveFuncs from "./moveFuncs";
 import type { MoveFunc } from "./moveFuncs";
 import double from "./double";
 import NumberBadge from "./NumberBadge";
-import { computed as c } from "rhobo";
+import { useComputed as c } from "rhobo";
 import { previewCard } from "./CardPreview";
+import Toggle from "./Toggle";
 
 type b = boolean;
 
@@ -44,6 +45,11 @@ const Card = ({ game, card, menu, main = moveFuncs.mark }: Props) => {
         <NumberBadge value={card.def} show={c<b>(() => !!card.defAdjust() || !!card.counters())} className="def"/>
         <NumberBadge value={card.offAdjust} className="offAdjust"/>
         <NumberBadge value={card.defAdjust} className="defAdjust"/>
+        <Toggle className="revealed Badge" value={c<b>(() =>
+          card.public() &&
+          card.zone() === "hand" &&
+          card.player() === game.p.n
+        ) } toggle={false}/>
       </div>
     </div>
   )

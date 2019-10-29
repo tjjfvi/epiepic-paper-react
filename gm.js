@@ -35,6 +35,7 @@ async function handle(ws, type, ...data){
     "deploying",
     "inBattle",
     "marked",
+    "public",
   ].indexOf(data[1])) {
     willPass(true);
     let [id, prop, val] = data;
@@ -42,14 +43,26 @@ async function handle(ws, type, ...data){
     if(!card) return;
     card[prop] = val;
     ws.o.s(type, id, prop, val);
-    if(prop === "zone" || prop === "player") {
+    if(prop === "public" && !val)
+      ws.o.s(type, id, "card", null);
+    if(prop === "zone" || prop === "player" || (prop === "public" && !val)) {
       let p = ws["p" + +card.player];
       let o = p.o;
       if(card.zone !== "deck") {
         p.s(type, id, "card", card.card);
-        if(card.zone !== "hand")
+        if(card.zone !== "hand") {
           o.s(type, id, "card", card.card);
+          if(!card.public) {
+            card.public = true;
+            p.s(type, id, "public", true);
+            o.s(type, id, "public", true);
+          }
+        }
       }
+    }
+    if(prop === "public" && val) {
+      ws.s(type, id, "card", card.card);
+      ws.o.s(type, id, "card", card.card);
     }
   }
   if(type === "newCard") {
@@ -68,6 +81,7 @@ async function handle(ws, type, ...data){
       inBattle: false,
       status: "prepared",
       marked: false,
+      public: false,
     };
     game.cards.push(card);
     ws.s("newCard", card);
@@ -89,6 +103,7 @@ async function handle(ws, type, ...data){
       inBattle: false,
       status: "prepared",
       marked: false,
+      public: false,
     }))));
     if(!ws.o.deck) return;
     game.cards.push(...ws.deck, ...ws.o.deck);

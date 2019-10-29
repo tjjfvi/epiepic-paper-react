@@ -65,6 +65,7 @@ const GameScreen = () => {
     <User player={game.p} game={game}/>
     <HPS main={moveFuncs.playCardGold} cardMenu={[
       moveFuncs.playCardGold,
+      moveFuncs.reveal,
       moveFuncs.disc,
       moveFuncs.supp,
       moveFuncs.play,
