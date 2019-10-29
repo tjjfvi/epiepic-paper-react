@@ -115,7 +115,11 @@ moveFuncs.mark = (game: Game, card: Card) => ({
 
 moveFuncs.changeControl = (game: Game, card: Card) => ({
   name: "Change Control",
-  func: () => void card.player.toggle(),
+  func: () => {
+    card.player.toggle()
+    card.zone("play")
+    card.pos(game.maxPos + 1);
+  },
 });
 
 (moveFuncs: {[string]: MoveFunc})

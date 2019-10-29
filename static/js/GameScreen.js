@@ -23,14 +23,42 @@ const GameScreen = () => {
   console.log(game.ready())
   if(!game.ready())
     return <div className="waiting">One moment...</div>;
+  const suppMenu = [
+    moveFuncs.disc,
+    moveFuncs.play,
+    moveFuncs.hand,
+    moveFuncs.changeControl,
+    moveFuncs.banish,
+  ];
+  const playMenu = [
+    moveFuncs.prepare,
+    moveFuncs.expend,
+    moveFuncs.flip,
+    moveFuncs.battle,
+    moveFuncs.changeControl,
+    moveFuncs.supp,
+    moveFuncs.banish,
+    moveFuncs.hand,
+    moveFuncs.disc,
+  ];
   return <div className="Game">
     <GameStateHelper game={game}/>
     <User player={game.o} game={game}/>
     <HPS cardMenu={[]} game={game} zone={game.o.zones.hand} className="o hand"/>
-    <HPS cardMenu={[]} game={game} zone={game.o.zones.play} className="o play"/>
-    <HPS cardMenu={[]} game={game} zone={game.o.zones.supp} className="o supp"/>
+    <HPS
+      cardMenu={playMenu}
+      menu={game.tokenMenu(game.o.n)}
+      game={game}
+      zone={game.o.zones.play}
+      className="o play"
+    />
+    <HPS cardMenu={suppMenu} game={game} zone={game.o.zones.supp} className="o supp"/>
     <Deck player={game.o} className="o"/>
-    <Discard cardMenu={[]} game={game} zone={game.o.zones.disc} className="o"/>
+    <Discard cardMenu={[
+      moveFuncs.banish,
+      moveFuncs.changeControl,
+      moveFuncs.hand,
+    ]} game={game} zone={game.o.zones.disc} className="o"/>
 
     <User player={game.p} game={game}/>
     <HPS main={moveFuncs.playCardGold} cardMenu={[
@@ -41,27 +69,19 @@ const GameScreen = () => {
       moveFuncs.deck,
       moveFuncs.banish,
     ]} game={game} zone={game.p.zones.hand} className="p hand"/>
-    <HPS main={moveFuncs.battle} cardMenu={[
-      moveFuncs.prepare,
-      moveFuncs.expend,
-      moveFuncs.flip,
-      moveFuncs.battle,
-      moveFuncs.changeControl,
-      moveFuncs.supp,
-      moveFuncs.banish,
-      moveFuncs.hand,
-      moveFuncs.disc,
-    ]} menu={game.tokenMenu(game.p.n)} game={game} zone={game.p.zones.play} className="p play"/>
-    <HPS main={moveFuncs.disc} cardMenu={[
-      moveFuncs.disc,
-      moveFuncs.play,
-      moveFuncs.hand,
-      moveFuncs.banish,
-    ]} game={game} zone={game.p.zones.supp} className="p supp"/>
+    <HPS
+      main={moveFuncs.battle}
+      cardMenu={playMenu}
+      menu={game.tokenMenu(game.p.n)}
+      game={game}
+      zone={game.p.zones.play}
+      className="p play"
+    />
+    <HPS main={moveFuncs.disc} cardMenu={suppMenu} game={game} zone={game.p.zones.supp} className="p supp"/>
     <Deck player={game.p} className="p"/>
     <Discard main={moveFuncs.hand} cardMenu={[
       moveFuncs.hand,
-      moveFuncs.play,
+      moveFuncs.playCard,
       moveFuncs.banish,
     ]} game={game} zone={game.p.zones.disc} className="p"/>
 

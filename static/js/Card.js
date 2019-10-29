@@ -18,7 +18,7 @@ type Props = {
   menu: Array<MoveFunc>,
   main?: MoveFunc,
 }
-const Card = ({ game, card, menu, main }: Props) => {
+const Card = ({ game, card, menu, main = moveFuncs.mark }: Props) => {
   card.card.use();
   card.marked.use();
   card.status.use();
@@ -31,7 +31,7 @@ const Card = ({ game, card, menu, main }: Props) => {
       " Card " +
       card.status()
     } onClick={double(
-      () => main && main(game, card).func(),
+      () => main(game, card).func(),
       () => {},
     )} {...rightClick(m)}>
       <img className="_" src="/314x314.jpg"/>
