@@ -10,6 +10,7 @@ import Discard from "./Discard";
 import ws from "./ws";
 import { useValue } from "rhobo";
 import moveFuncs from "./moveFuncs";
+import CardPreview from "./CardPreview";
 
 const GameStateHelper = ({ game }: { game: Game }) => <div className={
   (game.p.hasTurn.use()() ? "pTurn " : "oTurn ") +
@@ -87,6 +88,8 @@ const GameScreen = () => {
     ]} game={game} zone={game.p.zones.disc} className="p"/>
 
     <Status game={game}/>
+
+    <CardPreview/>
   </div>
 }
 

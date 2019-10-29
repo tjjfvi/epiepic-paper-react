@@ -9,6 +9,7 @@ import type { MoveFunc } from "./moveFuncs";
 import double from "./double";
 import NumberBadge from "./NumberBadge";
 import { computed as c } from "rhobo";
+import { previewCard } from "./CardPreview";
 
 type b = boolean;
 
@@ -32,7 +33,7 @@ const Card = ({ game, card, menu, main = moveFuncs.mark }: Props) => {
       card.status()
     } onClick={double(
       () => main(game, card).func(),
-      () => {},
+      () => previewCard(card),
     )} {...rightClick(m)}>
       <img className="_" src="/314x314.jpg"/>
       <img src={`/images/${card.card()?._id || "back"}`}/>
