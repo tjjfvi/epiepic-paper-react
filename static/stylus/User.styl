@@ -31,6 +31,7 @@
       color $green
 
     .gold
+      flex-direction row
       left 0px
 
       cursor pointer
@@ -46,6 +47,15 @@
 
       &:before
         content attr(data-g)
+      &:after
+        content attr(data-f)
+        font-size 20px
+        margin-left -2px
+      
+      for x in (('"G"' $good) ('"S"' $sage) ('"E"' $evil) ('"W"' $wild))
+        &[data-f={x[0]}]
+          color x[1]
+          border-color @color
 
   .username
     color $white

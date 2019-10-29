@@ -8,6 +8,7 @@ import cardData from "./cardData";
 type O<T> = Observable<T>;
 type C<T> = Computed<T>;
 
+type Alignment = "good" | "sage" | "evil" | "wild";
 type Phase = "start" | "main" | "battle-0" | "battle-1" | "battle-2" | "battle-3" | "battle-4" | "end";
 type Zone = "hand" | "deck" | "disc" | "supp" | "play" | "none";
 type CardStatus = "prepared" | "expended" | "flipped";
@@ -19,6 +20,7 @@ type Player = {
     waitingOn: O<boolean>,
     attention: O<boolean>,
     gold: O<boolean>,
+    goldAlignment: O<?Alignment>,
     health: O<number>,
     zones: { [Zone]: C<Array<Card>> },
     game: Game,
@@ -67,6 +69,14 @@ class Game {
 
     static cardStatuses: Array<CardStatus> = ["prepared", "expended", "flipped"];
 
+    static alignments: Array<Alignment> = ["good", "sage", "evil", "wild"];
+    static alignmentNames: {[Alignment]: string} = {
+      good: "Good",
+      sage: "Sage",
+      evil: "Evil",
+      wild: "Wild",
+    };
+
     ws: WS;
 
     ready = observable<boolean>(false);
@@ -105,7 +115,7 @@ class Game {
           let p = (n: boolean): Player => {
             let pn = "p" + +n;
             let p = g[pn]
-            return {
+            let player = {
               n,
               user: p.user,
               hasTurn: computed(() => this.turn() === n),
@@ -113,6 +123,7 @@ class Game {
               waitingOn: ws.observable<boolean>(p.waitingOn, [pn, "waitingOn"]),
               attention: ws.observable<boolean>(p.attention, [pn, "attention"]),
               gold: ws.observable<boolean>(p.gold, [pn, "gold"]),
+              goldAlignment: ws.observable<?Alignment>(p.goldAlignment, [pn, "goldAlignment"]),
               health: ws.observable<number>(p.health, [pn, "health"]),
               zones: Game.zones.map(zone => {
                 let x: { [Zone]: C<Array<Card>> } = ({
@@ -126,7 +137,11 @@ class Game {
                 return x;
               }).reduce<{ [Zone]: C<Array<Card>> }>((b, a) => ({ ...a, ...b }), {}),
               game: this
-            }
+            };
+            player.gold.ee.on("change", v => {
+              if(!v) player.goldAlignment(null);
+            })
+            return player;
           };
           this.p0 = p(false);
           this.p1 = p(true);

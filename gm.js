@@ -16,9 +16,9 @@ async function handle(ws, type, ...data){
   }
   if(type === "p0" || type === "p1") {
     let [prop, val] = data;
-    if(~["gold", "health"].indexOf(prop))
+    if(~["gold", "goldAlignment", "health"].indexOf(prop))
       willPass(true);
-    if(~["gold", "waitingOn", "attention", "health"].indexOf(prop)) {
+    if(~["gold", "goldAlignment", "waitingOn", "attention", "health"].indexOf(prop)) {
       game[type][prop] = val;
       ws.o.s(type, prop, val);
     }
