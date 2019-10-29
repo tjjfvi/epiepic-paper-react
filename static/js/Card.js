@@ -45,6 +45,10 @@ const Card = ({ game, card, menu, main = moveFuncs.mark }: Props) => {
         <NumberBadge value={card.def} show={c<b>(() => !!card.defAdjust() || !!card.counters())} className="def"/>
         <NumberBadge value={card.offAdjust} className="offAdjust"/>
         <NumberBadge value={card.defAdjust} className="defAdjust"/>
+        <Toggle className="deploying Badge" value={c<b>(() =>
+          card.deploying() &&
+          card.zone() === "play"
+        ) } toggle={false}/>
         <Toggle className="revealed Badge" value={c<b>(() =>
           card.public() &&
           card.zone() === "hand" &&

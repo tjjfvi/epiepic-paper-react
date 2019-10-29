@@ -217,6 +217,8 @@ class Game {
         card.zone.ee.on("change", v => {
           if(card.card() && card.card().packCode === "tokens" && v !== "none")
             card.zone("none");
+          if(card.zone() === "play")
+            card.deploying(true);
         })
         this.cards.add(card);
         const updatePos = pos => {
