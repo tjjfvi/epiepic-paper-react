@@ -120,7 +120,7 @@ class Game {
                     this.cardCount();
                     return [...this.cards]
                       .filter((c: Card) => c.player() === n && c.zone() === zone)
-                      .sort((a: Card, b: Card) => b.pos() - a.pos());
+                      .sort((a: Card, b: Card) => a.pos() - b.pos());
                   })
                 })
                 return x;
