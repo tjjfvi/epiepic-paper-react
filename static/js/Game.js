@@ -291,12 +291,41 @@ class Game {
           })
     }
 
+    decyclePhase(){
+      this.phase({
+        start: "end",
+        main: "start",
+        end: "main",
+        "battle-0": "main",
+        "battle-1": "battle-0",
+        "battle-2": "battle-1",
+        "battle-3": "battle-2",
+        "battle-4": "battle-3",
+      }[this.phase()]);
+
+      this.initiative(this.p.n);
+      this.p.waitingOn(true);
+      this.o.waitingOn(false);
+
+      if(this.phase() === "end")
+        this.turn.toggle();
+    }
+
     smartPass(){
       this.p.waitingOn(false);
       if(!this.o.waitingOn())
         this.hideInitiative() || !this.willPass() ?
           this.canProceed() && this.cyclePhase() :
           this.canPass() && this.initiative.toggle()
+    }
+
+    blockingPass(){
+      if(!this.p.hasTurn() && ["battle-1", "battle-2", "battle-3"].indexOf(this.phase()) && this.canProceed()) {
+        this.cyclePhase();
+        this.phase("battle-3");
+        this.p.waitingOn(false);
+        this.initiative(this.o.n);
+      }
     }
 
     tokenMenu(n: boolean){
