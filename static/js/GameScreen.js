@@ -21,7 +21,6 @@ const GameStateHelper = ({ game }: { game: Game }) => <div className={
 const GameScreen = () => {
   const game = useValue(() => new Game(ws));
   game.ready.use();
-  console.log(game.ready())
   if(!game.ready())
     return <div className="waiting">One moment...</div>;
   const suppMenu = [
@@ -45,7 +44,7 @@ const GameScreen = () => {
   ];
   return <div className="Game">
     <GameStateHelper game={game}/>
-    <User player={game.o} game={game}/>
+    <User player={game.o} game={game} active={game.oActive}/>
     <HPS cardMenu={[]} game={game} zone={game.o.zones.hand} className="o hand"/>
     <HPS
       cardMenu={playMenu}

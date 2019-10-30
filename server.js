@@ -113,6 +113,8 @@ app.ws("/ws", async (ws, req) => {
   wss.all.push(ws);
   ws.user = user;
 
+  ws.reconnectGames = gm.getReconnectGames(ws).then(games => (ws.s("reconnectGames", games), games));
+
   ws.status = "waiting";
   wss.waiting.push(ws);
   sendGames([ws]);
@@ -171,6 +173,27 @@ app.ws("/ws", async (ws, req) => {
 
       return;
     }
+    if(type === "reconnect") {
+      if(ws.status !== "waiting")
+        return;
+
+      ws.status = "reconnecting";
+      sendStatus(ws);
+
+      let [id] = data
+
+      let games = await ws.reconnectGames;
+      let game = games.find(g => g.id.toString() === id);
+
+      console.log(game, id);
+      if(!game) return;
+
+      // eslint-disable-next-line require-atomic-updates
+      ws.status = "playing";
+      sendStatus(ws);
+
+      gm.reconnect(ws, game).catch(gmError(ws));
+    }
     if(ws.status !== "playing")
       return;
 
@@ -178,12 +201,8 @@ app.ws("/ws", async (ws, req) => {
   })
 
   ws.on("close", () => {
-    if(ws.status === "playing") {
-      if(!ws.o) return;
-      ws.o.s("oActive", false);
-      delete ws.game["p" + ws.n].ws;
-      return;
-    }
+    if(ws.status === "playing")
+      return gm.disconnect(ws);
     wss[ws.status].splice(wss[ws.status].indexOf(ws), 1);
     if(ws.status === "hosting")
       sendGames();

@@ -3,10 +3,11 @@ import React from "react";
 import { useValue, useObservable } from "rhobo";
 import ws from "./ws";
 import DeckChoiceScreen from "./DeckChoiceScreen";
+import GameScreen from "./GameScreen";
 import { UploadButton } from "./registerSW";
 import { go } from "./App";
 
-const Game = ({ game }) => {
+const Game = ({ game, isReconnect = false }) => {
   const wrong = useObservable(false).use();
   const input = React.useRef();
   return <div className={"game " + (game.pswd ? "pswd" : "")}>
@@ -16,7 +17,7 @@ const Game = ({ game }) => {
     <div>
       <input ref={input} className={wrong() ? "wrong" : ""}type="password" data-lpignore="true" placeholder="Password"/>
       <button onClick={() => {
-        ws.s("join", game.id, input.current.value)
+        ws.s(isReconnect ? "reconnect" : "join", game.id, input.current.value)
         let h = data => {
           if(data[0] !== "joinFailed")
             return;
@@ -24,15 +25,18 @@ const Game = ({ game }) => {
           ws.removeListener("message", h)
         }
         ws.on("message", h);
-      }}>Join</button>
+      }}>{isReconnect ? "Reconnect" : "Join"}</button>
     </div>
   </div>
 };
 
 const LobbyScreen = () => {
   const games = useValue(() => ws.observable([], ["games"])).use();
+  const reconnectGames = useValue(() => ws.observable([], ["reconnectGames"])).use();
   const status = useValue(() => ws.observable(null, ["status"])).use();
   const input = React.useRef();
+  if(status() === "reconnecting")
+    go(GameScreen);
   if(status() === "playing")
     go(DeckChoiceScreen);
   return (
@@ -43,6 +47,7 @@ const LobbyScreen = () => {
         <div className="join">
           <h1>Join an existing game</h1>
           {games().map((game, i) => <Game game={game} key={i}/>)}
+          {reconnectGames().map((game, i) => <Game game={game} isReconnect={true} key={i}/>)}
         </div>
         <div className="host">
           <h1>Host a new game</h1>

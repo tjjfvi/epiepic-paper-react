@@ -5,10 +5,12 @@ import Game from "./Game";
 import type { Player } from "./Game";
 import NumberBadge from "./NumberBadge";
 import rightClick from "./rightClick";
+import type { Observable } from "rhobo";
 
 type Props = {
     player: Player,
     game: Game,
+    active?: Observable<number>,
 }
 const GoldBadge = ({ player }: Props) => {
   player.gold.use();
@@ -28,10 +30,11 @@ const GoldBadge = ({ player }: Props) => {
     ])}
   />
 }
-const User = ({ player, game }: Props) => {
+const User = ({ player, game, active: _active }: Props) => {
   let user = player.user;
+  let active = _active ? !!_active.use()() : true;
   return (
-    <div className={"user " + (player === game.p ? "p" : "o")}>
+    <div className={(active ? "" : "inactive") + " user " + (player === game.p ? "p" : "o")}>
       <div className="avatarGroup">
         <GoldBadge player={player} game={game}/>
         <img className="avatar" src={`/api/user:${user._id}/avatar`}/>

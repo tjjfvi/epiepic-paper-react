@@ -5,6 +5,12 @@
   align-items center
   justify-content center
 
+  & > *
+    transition opacity .5s
+
+  &.inactive > *
+    opacity .5
+
   .avatarGroup
     position relative
 

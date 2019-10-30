@@ -1,18 +1,26 @@
 
 const uuidv4 = require("uuid/v4");
-// const games = {};
+const { MongoClient } = require("mongodb");
+
+const { MDB_URL, MDB_NAME, MDB_COL } = process.env;
+let db = MongoClient.connect(MDB_URL, { useNewUrlParser: true, useUnifiedTopology: true }).then(client => {
+  console.log("Connected to MongoDB");
+  return db = client.db(MDB_NAME).collection(MDB_COL);
+});
+
+const p0s = {};
 
 async function handle(ws, type, ...data){
-  let { game } = ws;
+  let { p } = ws;
+  let { game } = p;
   let willPass = v => {
     game.willPass = v;
-    ws.s("willPass", v);
-    ws.o.s("willPass", v);
+    p.as("willPass", v);
   };
   if(~["turn", "phase", "initiative"].indexOf(type)) {
     willPass(type !== "initiative");
     game[type] = data[0];
-    ws.o.s(type, data[0]);
+    p.as(type, data[0]);
   }
   if(type === "p0" || type === "p1") {
     let [prop, val] = data;
@@ -20,7 +28,7 @@ async function handle(ws, type, ...data){
       willPass(true);
     if(~["gold", "goldAlignment", "waitingOn", "attention", "health"].indexOf(prop)) {
       game[type][prop] = val;
-      ws.o.s(type, prop, val);
+      p.as(type, prop, val);
     }
   }
   if(type === "card" && ~[
@@ -42,28 +50,23 @@ async function handle(ws, type, ...data){
     let card = game.cards.find(c => c.id === id);
     if(!card) return;
     card[prop] = val;
-    ws.o.s(type, id, prop, val);
+    p.as(type, id, prop, val);
     if(prop === "public" && !val)
-      ws.o.s(type, id, "card", null);
+      p.os(type, id, "card", null);
     if(prop === "zone" || prop === "player" || (prop === "public" && !val)) {
-      let p = ws["p" + +card.player];
-      let o = p.o;
+      let P = p["p" + +card.player];
+      let O = P.o;
       if(card.zone !== "deck") {
-        p.s(type, id, "card", card.card);
+        P.s(type, id, "card", card.card);
         if(card.zone !== "hand") {
-          o.s(type, id, "card", card.card);
-          if(!card.public) {
-            card.public = true;
-            p.s(type, id, "public", true);
-            o.s(type, id, "public", true);
-          }
+          O.s(type, id, "card", card.card);
+          if(!card.public)
+            p.as(type, id, "public", card.public = true);
         }
       }
     }
-    if(prop === "public" && val) {
-      ws.s(type, id, "card", card.card);
-      ws.o.s(type, id, "card", card.card);
-    }
+    if(prop === "public" && val)
+      p.as(type, id, "card", card.card);
   }
   if(type === "newCard") {
     let [cardData, owner, player, zone, pos] = data;
@@ -84,16 +87,15 @@ async function handle(ws, type, ...data){
       public: false,
     };
     game.cards.push(card);
-    ws.s("newCard", card);
-    ws.o.s("newCard", card);
+    p.as("newCard", card);
   }
   if(type === "deck") {
-    if(ws.deck) return;
-    ws.deck = [].concat(...data[0].map(({ count, card }) => [...Array(count)].map(() => ({
+    if(p.deck) return;
+    p.deck = [].concat(...data[0].map(({ count, card }) => [...Array(count)].map(() => ({
       id: uuidv4(),
       card: card,
-      owner: !!ws.n,
-      player: !!ws.n,
+      owner: !!p.n,
+      player: !!p.n,
       zone: "deck",
       pos: Math.random(),
       damage: 0,
@@ -105,22 +107,24 @@ async function handle(ws, type, ...data){
       marked: false,
       public: false,
     }))));
-    if(!ws.o.deck) return;
-    game.cards.push(...ws.deck, ...ws.o.deck);
+    if(!p.o.deck) return;
+    game.cards.push(...p.deck, ...p.o.deck);
     let obj = {
       ...game,
-      p0: { ...game.p0, ws: null },
-      p1: { ...game.p1, ws: null },
       cards: game.cards.map(c => ({ ...c, card: null }))
     };
-    [ws, ws.o].map(ws => ws.s("init", ws.n, obj));
+    p.s("init", p.n, obj);
+    p.os("init", p.o.n, obj);
+    p.s("oActive", p.o.active);
+    p.os("oActive", p.active);
   }
+  await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
 }
 
 async function setup(ws1, ws2){
   if(Math.random() > .5)
     [ws1, ws2] = [ws2, ws1];
-  let genP = ws => ({
+  let f = ws => ({
     user: ws.user,
     health: 30,
     gold: true,
@@ -128,26 +132,95 @@ async function setup(ws1, ws2){
     attention: false,
   });
   let game = ({
-    p0: genP(ws1),
-    p1: genP(ws2),
+    _id: uuidv4(),
+    p0: f(ws1),
+    p1: f(ws2),
     turn: false,
     phase: "start",
     initiative: false,
     willPass: true,
     cards: [],
   });
-  // games[game._id.toString()] = game;
-  game.p0.ws = ws1;
-  game.p1.ws = ws2;
-  ws1.game = game;
-  ws2.game = game;
-  ws1.o = ws2;
-  ws2.o = ws1;
-  ws1.p0 = ws2.p0 = ws1;
-  ws1.p1 = ws2.p1 = ws2;
-  ws1.n = 0;
-  ws2.n = 1;
-    // ---
+  let p0 = genP(ws1, game, false);
+  let p1 = genP(ws2, game, true);
+  p0.o = p1;
+  p1.o = p0;
+  p0.p0 = p0;
+  p0.p1 = p1;
+  p1.p0 = p0;
+  p1.p1 = p1;
+  p0s[game._id] = p0;
+  await (await db).insertOne(game);
 }
 
-module.exports = { handle, setup };
+function genP(ws, game, n){
+  let p = {};
+  if(ws) ws.p = p;
+  p.active = +!!ws;
+  p.n = n;
+  p.game = game;
+  p.wss = [ws];
+  p.s = (...a) => p.wss.map(ws => ws && ws.s(...a));
+  p.os = (...a) => p.o.s(...a);
+  p.as = (...a) => (p.s(...a), p.os(...a));
+  return p;
+}
+
+async function getReconnectGames(ws){
+  let id = ws.user._id;
+  return (await db.find({
+    $or: [{ "p0.user._id": id }, { "p1.user._id": id }],
+    finished: { $ne: true },
+  }).toArray()).map(game => {
+    let oUser = game.p0.user._id === id ? game.p1.user : game.p0.user;
+    return { oUser, id: game._id, game };
+  });
+}
+
+async function reconnect(ws, { game }){
+  let p0 = p0s[game._id];
+  let p;
+  if(!p0) {
+    let pn = game.p0.user._id !== ws.user._id;
+    p0 = genP(null, game, false);
+    let p1 = genP(null, game, true);
+    p0.p0 = p0;
+    p0.p1 = p1;
+    p1.p0 = p0;
+    p1.p1 = p1;
+    p0.o = p1;
+    p1.o = p0;
+    p = pn ? p1 : p0;
+    p0s[game._id] = p0;
+  } else {
+    game = p0.game;
+    p = game.p0.user._id !== ws.user._id ?
+      p0.o :
+      game.p1.user._id !== ws.user._id ?
+        p0 :
+        p0.active ?
+          p0.o :
+          p0;
+  }
+  p.active++;
+  p.os("oActive", p.active);
+  p.wss.push(ws);
+  ws.p = p;
+  ws.s("init", p.n, {
+    ...game,
+    cards: game.cards.map(c =>
+      (!c.public && (c.zone === "deck" || (c.player !== p.n && c.zone === "hand"))) ?
+        { ...c, card: null } :
+        c
+    )
+  });
+  ws.s("oActive", p.o.active);
+  return;
+}
+
+function disconnect(ws){
+  ws.p.active--;
+  ws.p.os("oActive", ws.p.active);
+}
+
+module.exports = { handle, setup, getReconnectGames, reconnect, disconnect };

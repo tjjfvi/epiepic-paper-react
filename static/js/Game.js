@@ -85,6 +85,7 @@ class Game {
     initiative: O<boolean>;
     phase: O<Phase>;
     willPass: O<boolean>;
+    oActive: O<number>;
     p: Player;
     o: Player;
     p0: Player;
@@ -108,10 +109,10 @@ class Game {
         if(type === "init") {
           let [pn, g] = data;
           this.turn = ws.observable<boolean>(g.turn, ["turn"])
-          console.log(this.turn());
           this.initiative = ws.observable<boolean>(g.initiative, ["initiative"])
           this.phase = ws.observable<Phase>(g.phase, ["phase"])
           this.willPass = ws.observable<boolean>(g.willPass, ["willPass"]);
+          this.oActive = ws.observable<number>(0, ["oActive"]);
           this.addCards(...g.cards);
           let p = (n: boolean): Player => {
             let pn = "p" + +n;
