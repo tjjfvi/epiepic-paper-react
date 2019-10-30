@@ -8,7 +8,7 @@ import moveFuncs from "./moveFuncs";
 import type { MoveFunc } from "./moveFuncs";
 import double from "./double";
 import NumberBadge from "./NumberBadge";
-import { useComputed as c } from "rhobo";
+import { useComputed as c, observer } from "rhobo";
 import { previewCard } from "./CardPreview";
 import Toggle from "./Toggle";
 
@@ -20,11 +20,7 @@ type Props = {
   menu: Array<MoveFunc>,
   main?: MoveFunc,
 }
-const Card = ({ game, card, menu, main = moveFuncs.mark }: Props) => {
-  card.card.use();
-  card.marked.use();
-  card.status.use();
-  card.inBattle.use();
+const Card = observer<Props>(({ game, card, menu, main = moveFuncs.mark }) => {
   let m = [moveFuncs.mark, ...menu].map(f => f(game, card));
   return (
     <div className={
@@ -57,6 +53,6 @@ const Card = ({ game, card, menu, main = moveFuncs.mark }: Props) => {
       </div>
     </div>
   )
-}
+});
 
 export default Card;

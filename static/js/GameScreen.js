@@ -11,13 +11,14 @@ import ws from "./ws";
 import { useValue } from "rhobo";
 import moveFuncs from "./moveFuncs";
 import CardPreview from "./CardPreview";
+import { observer } from "rhobo";
 
-const GameStateHelper = ({ game }: { game: Game }) => <div className={
-  (game.p.hasTurn.use()() ? "pTurn " : "oTurn ") +
-  (game.p.hasInitiative.use()() ? "pInit " : "oInit ") +
-  (game.p.gold.use()() ? "pGold " : "") +
-  (game.o.gold.use()() ? "oGold " : "") +
-""}/>;
+const GameStateHelper = observer<{game: Game}>(({ game }) => <div className={
+  (game.p.hasTurn() ? "pTurn " : "oTurn ") +
+  (game.p.hasInitiative() ? "pInit " : "oInit ") +
+  (game.p.gold() ? "pGold " : "") +
+  (game.o.gold() ? "oGold " : "") +
+""}/>);
 const GameScreen = () => {
   const game = useValue(() => new Game(ws));
   game.ready.use();

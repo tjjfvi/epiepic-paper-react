@@ -1,14 +1,14 @@
 
 import React from "react";
-import { useValue, useObservable } from "rhobo";
+import { useValue, useObservable, observer } from "rhobo";
 import ws from "./ws";
 import DeckChoiceScreen from "./DeckChoiceScreen";
 import GameScreen from "./GameScreen";
 import { UploadButton } from "./registerSW";
 import { go } from "./App";
 
-const Game = ({ game, isReconnect = false }) => {
-  const wrong = useObservable(false).use();
+const Game = observer(({ game, isReconnect = false }) => {
+  const wrong = useObservable(false);
   const input = React.useRef();
   return <div className={"game " + (game.pswd ? "pswd" : "")}>
     <span>
@@ -28,12 +28,12 @@ const Game = ({ game, isReconnect = false }) => {
       }}>{isReconnect ? "Reconnect" : "Join"}</button>
     </div>
   </div>
-};
+});
 
-const LobbyScreen = () => {
-  const games = useValue(() => ws.observable([], ["games"])).use();
-  const reconnectGames = useValue(() => ws.observable([], ["reconnectGames"])).use();
-  const status = useValue(() => ws.observable(null, ["status"])).use();
+const LobbyScreen = observer(() => {
+  const games = useValue(() => ws.observable([], ["games"]));
+  const reconnectGames = useValue(() => ws.observable([], ["reconnectGames"]));
+  const status = useValue(() => ws.observable(null, ["status"]));
   const input = React.useRef();
   if(status() === "reconnecting")
     go(GameScreen);
@@ -61,6 +61,6 @@ const LobbyScreen = () => {
         </div>
       </div>
   )
-}
+});
 
 export default LobbyScreen;

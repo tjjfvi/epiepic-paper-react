@@ -1,6 +1,6 @@
 
 import React from "react";
-import { observable } from "rhobo";
+import { observable, observer } from "rhobo";
 import rightClick from "./rightClick";
 
 const showUpload = observable(false);
@@ -22,14 +22,14 @@ if("serviceWorker" in navigator)
     showUpload(true);
   }).catch(console.error);
 
-const UploadButton = () =>
+const UploadButton = observer(() =>
   <label className={
-    (showUpload.use()() ? "show" : "") +
+    (showUpload() ? "show" : "") +
     " UploadButton " +
-    (uploadDone.use()() ? "done" : "")
+    (uploadDone() ? "done" : "")
   } {...rightClick([{ name: "Wipe Images", func: resetImages, class: "evil" }])}>
     <input type="file" multiple onChange={upload} accept=".jpg"/>
   Apply Images
   </label>
-
+);
 export { UploadButton };

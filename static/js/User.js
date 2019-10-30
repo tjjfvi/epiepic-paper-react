@@ -6,16 +6,15 @@ import type { Player } from "./Game";
 import NumberBadge from "./NumberBadge";
 import rightClick from "./rightClick";
 import type { Observable } from "rhobo";
+import { observer } from "rhobo";
 
 type Props = {
     player: Player,
     game: Game,
     active?: Observable<number>,
 }
-const GoldBadge = ({ player }: Props) => {
-  player.gold.use();
-  player.goldAlignment.use();
-  return <div
+const GoldBadge = observer<Props>(({ player }) =>
+  <div
     className="gold Badge"
     data-g={+player.gold()}
     data-f={(player.goldAlignment() || [""])[0].toUpperCase()}
@@ -29,7 +28,7 @@ const GoldBadge = ({ player }: Props) => {
       }))
     ])}
   />
-}
+);
 const User = ({ player, game, active: _active }: Props) => {
   let user = player.user;
   let active = _active ? !!_active.use()() : true;

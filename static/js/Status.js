@@ -3,6 +3,7 @@
 import React from "react";
 import Toggle from "./Toggle";
 import Game from "./Game";
+import { observer } from "rhobo";
 import type { Observable } from "rhobo";
 import double from "./double";
 
@@ -24,19 +25,17 @@ const Status = ({ game }: Props) => (
     </div>
   </div>
 )
-const TP = ({ game }: Props) => {
-  game.p.hasTurn.use();
-  game.phaseName.use();
-  return <div className={
+const TP = observer<Props>(({ game }) =>
+  <div className={
     (game.p.hasTurn() ? "pTurn " : "") +
     " tp " +
     (["canProceed", "willProceed", "shouldProceed"]).map(k =>
-      (game: { [typeof k]: Observable<boolean> })[k].use()() ? k : ""
+      (game: { [typeof k]: Observable<boolean> })[k]() ? k : ""
     ).join(" ")
   } onClick={double(() => game.smartPass())}>
     <span className="turn">{game.p.hasTurn() ? "Your turn" : "Their turn"}</span>
     <span className="phase">{game.phaseName()}</span>
   </div>
-}
+)
 
 export default Status;
