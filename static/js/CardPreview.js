@@ -18,7 +18,8 @@ const CardPreview = () => {
 
 const previewCard = (c: Card) => {
   card(c.card());
-  showCard(true);
+  if(c.card())
+    showCard(true);
 }
 
 export default CardPreview;

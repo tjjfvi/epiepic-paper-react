@@ -64,8 +64,8 @@ moveFuncs.playCardGold = (game: Game, card: Card) => ({
     if(!canPlayCard(game, card))
       return;
     moveFuncs.playCard(game, card).func();
-    if(!card.card().cost)
-      return;
+    if(card.card().cost)
+      game.p.gold(false);
   },
   show: computed(() => canPlayCard(game, card)),
 });
