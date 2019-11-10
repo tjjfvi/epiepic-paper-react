@@ -12,7 +12,7 @@ const Game = observer(({ game, isReconnect = false }) => {
   const input = React.useRef();
   return <div className={"game " + (game.pswd ? "pswd" : "")}>
     <span>
-      <span>{game.name}</span>
+      <span>{game.oUser ? `@${game.oUser.username}#${game.oUser.discriminator}` : game.name}</span>
     </span>
     <div>
       <input ref={input} className={wrong() ? "wrong" : ""}type="password" data-lpignore="true" placeholder="Password"/>
@@ -56,7 +56,7 @@ const LobbyScreen = observer(() => {
             <input ref={input} type="password" data-lpignore="true"/>
           </label>
           <button onClick={() => {
-            ws.s("host", "test", input.current.value);
+            ws.s("host", input.current.value);
           }}>Host</button>
         </div>
       </div>

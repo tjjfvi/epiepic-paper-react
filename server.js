@@ -156,7 +156,9 @@ app.ws("/ws", async (ws, req) => {
       if(ws.status !== "waiting")
         return;
 
-      let [name, pswd] = data;
+      let [pswd] = data;
+
+      let name = `@${ws.user.username}#${ws.user.discriminator}`;
 
       ws.id = uuidv4();
       wss.byId[ws.id] = ws;
