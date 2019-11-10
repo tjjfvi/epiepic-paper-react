@@ -29,6 +29,7 @@ Game.zones.map(zone => {
       disc: "evil",
       hand: "sage",
       none: "",
+      banish: "",
     }[zone],
   });
 })
@@ -37,7 +38,7 @@ moveFuncs.banish = (game: Game, card: Card) => ({
   name: "Banish",
   func: () => {
     card.pos(game.minPos - 1);
-    card.zone("deck");
+    card.zone("banish");
   },
   class: "good",
 });

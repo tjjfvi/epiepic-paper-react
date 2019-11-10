@@ -10,7 +10,7 @@ type C<T> = Computed<T>;
 
 type Alignment = "good" | "sage" | "evil" | "wild";
 type Phase = "start" | "main" | "battle-0" | "battle-1" | "battle-2" | "battle-3" | "battle-4" | "end";
-type Zone = "hand" | "deck" | "disc" | "supp" | "play" | "none";
+type Zone = "hand" | "deck" | "disc" | "supp" | "play" | "none" | "banish";
 type CardStatus = "prepared" | "expended" | "flipped";
 type Player = {
     n: boolean,
@@ -43,7 +43,23 @@ type Card = {
   def: C<number>,
   marked: O<boolean>,
   public: O<boolean>,
-}
+};
+type LogEntry =
+  | {
+    type: "set",
+    path: Array<string>,
+    val: any,
+    old: any,
+    p: boolean,
+  }
+  | {
+    type: "newCard",
+    id: string,
+    player: boolean,
+    owner: boolean,
+    zone: Zone,
+    pos: number,
+  };
 
 class Game {
 
@@ -66,6 +82,7 @@ class Game {
       disc: "Discard",
       supp: "Supplemental",
       play: "Play",
+      banish: "Banished",
     }
 
     static cardStatuses: Array<CardStatus> = ["prepared", "expended", "flipped"];
@@ -103,6 +120,8 @@ class Game {
     canPass: C<boolean>;
     willProceed: C<boolean>;
 
+    log = observable<Array<LogEntry>>([]);
+
     constructor(ws: WS){
       this.ws = ws;
       ws.on("message", ([type, ...data]) => {
@@ -113,6 +132,7 @@ class Game {
           this.phase = ws.observable<Phase>(g.phase, ["phase"])
           this.willPass = ws.observable<boolean>(g.willPass, ["willPass"]);
           this.oActive = ws.observable<number>(0, ["oActive"]);
+          this.log(g.log);
           this.addCards(...g.cards);
           let p = (n: boolean): Player => {
             let pn = "p" + +n;
@@ -181,6 +201,8 @@ class Game {
         }
         if(type === "newCard")
           this.addCards(data[0]);
+        if(type === "log")
+          this.log([...this.log(), ...data]);
       })
     }
 
@@ -341,4 +363,4 @@ class Game {
 }
 
 export default Game;
-export type { Player, Phase, Card };
+export type { Player, Phase, Card, LogEntry };

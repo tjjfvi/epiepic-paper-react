@@ -1,0 +1,54 @@
+
+.Log
+  border-left 5px solid $grey
+  width 20px
+  height 100vh
+
+  flex 0 0 auto
+
+  overflow hidden
+
+  transition width .5s
+
+  *
+    prefix user-select text
+
+  > div
+    width calc(25em - 20px)
+    height 100vh
+
+    background $black
+
+    padding-left 20px
+
+    display flex
+    flex-direction column
+    justify-content flex-start
+
+    overflow hidden auto
+
+    *
+      color $white
+      transition color .2s
+
+    &:before
+    &:after
+      content ""
+      height 120px
+      flex 0 0 auto
+  
+  .o
+    opacity .5
+  
+  &.hoverIntent
+  &.rightClicked
+  &.pinned
+    width 25em
+
+  .CardName
+    font-weight bold
+    cursor pointer
+
+    &:hover
+    &.highlight
+      color white

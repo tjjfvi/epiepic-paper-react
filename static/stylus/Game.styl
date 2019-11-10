@@ -7,12 +7,14 @@ cardWidth=cardHeight/aspect
   height 100vh
   display grid
   grid-template:
-    "ouser ohand odeck odisc" cardHeight \
-    "osupp oplay status status" cardHeight*(4/3) \
-    "psupp pplay status status" cardHeight*(4/3) \
-    "puser phand pdeck pdisc" cardHeight \
-    / cardWidth*2 1fr cardWidth cardWidth;
+    "ouser ohand odeck odisc log" cardHeight \
+    "osupp oplay status status log" cardHeight*(4/3) \
+    "psupp pplay status status log" cardHeight*(4/3) \
+    "puser phand pdeck pdisc log" cardHeight \
+    / cardWidth*2 1fr cardWidth cardWidth auto;
 
+  .Log
+    grid-area log
   .status
     grid-area: status;
   for area in user hand deck disc supp play

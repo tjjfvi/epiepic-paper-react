@@ -19,16 +19,30 @@ async function handle(ws, type, ...data){
   };
   if(~["turn", "phase", "initiative"].indexOf(type)) {
     willPass(type !== "initiative");
+    let old = game[type];
     game[type] = data[0];
     p.as(type, data[0]);
+    log(p, {
+      type: "set",
+      path: [type],
+      val: data[0],
+      old,
+    });
   }
   if(type === "p0" || type === "p1") {
     let [prop, val] = data;
     if(~["gold", "goldAlignment", "health"].indexOf(prop))
       willPass(true);
     if(~["gold", "goldAlignment", "waitingOn", "attention", "health"].indexOf(prop)) {
+      let old = game[type][prop];
       game[type][prop] = val;
       p.as(type, prop, val);
+      log(p, {
+        type: "set",
+        path: [type, prop],
+        val,
+        old,
+      });
     }
   }
   if(type === "card" && ~[
@@ -47,10 +61,20 @@ async function handle(ws, type, ...data){
   ].indexOf(data[1])) {
     willPass(true);
     let [id, prop, val] = data;
+    let _val = val;
+    if(prop === "zone" && val === "banish")
+      val = "deck";
     let card = game.cards.find(c => c.id === id);
     if(!card) return;
+    let old = card[prop];
     card[prop] = val;
     p.as(type, id, prop, val);
+    log(p, {
+      type: "set",
+      path: [type, id, prop],
+      val: _val,
+      old,
+    });
     if(prop === "public" && !val)
       p.os(type, id, "card", null);
     if(prop === "zone" || prop === "player" || (prop === "public" && !val)) {
@@ -89,6 +113,14 @@ async function handle(ws, type, ...data){
     };
     game.cards.push(card);
     p.as("newCard", card);
+    log(p, {
+      type: "newCard",
+      id: card.id,
+      owner,
+      player,
+      zone,
+      pos,
+    })
   }
   if(type === "deck") {
     if(p.deck) return;
@@ -140,6 +172,7 @@ async function setup(ws1, ws2){
     phase: "start",
     initiative: false,
     willPass: true,
+    log: [],
     cards: [],
   });
   let p0 = genP(ws1, game, false);
@@ -222,6 +255,12 @@ async function reconnect(ws, { game }){
 function disconnect(ws){
   ws.p.active--;
   ws.p.os("oActive", ws.p.active);
+}
+
+async function log(p, ...log){
+  log.map(l => l.p = !!p.n);
+  p.as("log", ...log);
+  p.game.log.push(...log);
 }
 
 module.exports = { handle, setup, getReconnectGames, reconnect, disconnect };

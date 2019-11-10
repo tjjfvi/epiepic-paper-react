@@ -7,6 +7,7 @@ import User from "./User";
 import HPS from "./HPS";
 import Deck from "./Deck";
 import Discard from "./Discard";
+import Log from "./Log";
 import ws from "./ws";
 import { useValue } from "rhobo";
 import moveFuncs from "./moveFuncs";
@@ -44,6 +45,8 @@ const GameScreen = () => {
     moveFuncs.transform,
   ];
   return <div className="Game">
+    <Log game={game}/>
+
     <GameStateHelper game={game}/>
     <User player={game.o} game={game} active={game.oActive}/>
     <HPS cardMenu={[]} game={game} zone={game.o.zones.hand} className="o hand"/>
