@@ -151,6 +151,10 @@ async function handle(ws, type, ...data){
     p.s("oActive", p.o.active);
     p.os("oActive", p.active);
   }
+  if(type === "concede") {
+    game.finished = true;
+    p.as("fin", !p.n)
+  }
   await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
 }
 

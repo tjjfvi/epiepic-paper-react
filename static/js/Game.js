@@ -1,9 +1,11 @@
 /* @flow */
 
+import React from "react";
 import { observable, computed } from "rhobo";
 import type { Observable, Computed } from "rhobo";
 import { WS } from "./ws";
 import cardData from "./cardData";
+import { go } from "./App";
 
 type O<T> = Observable<T>;
 type C<T> = Computed<T>;
@@ -203,6 +205,8 @@ class Game {
           this.addCards(data[0]);
         if(type === "log")
           this.log([...this.log(), ...data]);
+        if(type === "fin")
+          go(() => <div className="fin">{data[0] === this.p.n ? "You won!" : "You lost."}</div>);
       })
     }
 

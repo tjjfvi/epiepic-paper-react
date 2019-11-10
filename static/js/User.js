@@ -36,7 +36,11 @@ const User = ({ player, game, active: _active }: Props) => {
     <div className={(active ? "" : "inactive") + " user " + (player === game.p ? "p" : "o")}>
       <div className="avatarGroup">
         <GoldBadge player={player} game={game}/>
-        <img className="avatar" src={`/api/user:${user._id}/avatar`}/>
+        <img className="avatar" src={`/api/user:${user._id}/avatar`} {...rightClick(
+          player === game.p ?
+            [ { name: "Concede", func: () => game.ws.s("concede") } ] :
+            []
+        )}/>
         <NumberBadge value={player.health} className="health"/>
       </div>
       <span className="username">{`@${user.username}#${user.discriminator}`}</span>
