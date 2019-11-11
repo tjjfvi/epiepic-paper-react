@@ -61,11 +61,14 @@ const LogEntry = ({ l, game }: LogEntryProps) => {
 
   let label = null;
 
-  if(l.path[0][0] === "p" && !!~["gold", "health"].indexOf(l.path[1]))
+  if(l.path[0][0] === "p" && !!~["goldAlignment", "gold", "health"].indexOf(l.path[1])) {
     label = <>
       {psName(l.path[0][1])}{" "}
-      {l.path[1] === "gold" ? "gold" : "health"}
+      {l.path[1] === "goldAlignment" ? "gold alignment" : l.path[1]}
     </>;
+    if(l.path[1] === "gold")
+      l.val = (+l.val) + "";
+  }
   if(l.path[0] === "card" && l.path[2] !== "pos")
     label = <>
       <CardName game={game} id={l.path[1]}/>
