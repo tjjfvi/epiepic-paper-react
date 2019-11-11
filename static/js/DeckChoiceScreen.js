@@ -13,7 +13,7 @@ const DeckChoiceScreen = () => {
     <div className="DeckChoice">
       <textarea className={wrong() ? "wrong" : ""} ref={textarea} placeholder="Deck ID or Deck List">30 Muse</textarea>
       <button onClick={async () => {
-        const re = /^(?:http.*id=)?([0-9af]+)(?:&.*)?$/;
+        const re = /^(?:http.*id=)?([0-9a-f]+)(?:&.*)?$/;
         let input = (textarea.current?.value || "").trim();
         let [, deckId] = input.match(re) || [];
         let cards = await (
