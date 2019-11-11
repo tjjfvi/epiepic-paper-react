@@ -107,7 +107,7 @@ app.ws("/ws", async (ws, req) => {
   console.log(token);
   let user = await fetch(`${API_BASE_URL}api/user/current`, {
     headers: { Cookie: `token=${token}` },
-  }).then(r => r.json()).catch(e => null);
+  }).then(r => r.json()).catch(() => null);
   if(!user)
     return ws.s("login");
 
@@ -213,7 +213,9 @@ app.ws("/ws", async (ws, req) => {
 
 })
 
-app.get("/login", (req, res) => res.redirect(API_BASE_URL + "api/discord/login?redirect=" + encodeURIComponent(BASE_URL)))
+app.get("/login", (req, res) =>
+  res.redirect(API_BASE_URL + "api/discord/login?redirect=" + encodeURIComponent(BASE_URL))
+);
 app.use("/api", (req, res) =>
   req.pipe(require("request")(API_BASE_URL + "api" + req.url, { headers: req.headers }).on("response", r => {
     res.set(r.headers)
