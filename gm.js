@@ -137,6 +137,7 @@ async function handle(ws, type, ...data){
       defAdjust: 0,
       inBattle: false,
       status: "prepared",
+      deploying: false,
       marked: false,
       public: false,
     }))));

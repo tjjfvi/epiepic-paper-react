@@ -72,12 +72,9 @@ const LogEntry = ({ l, game }: LogEntryProps) => {
       <CardName game={game} id={l.path[1]}/>
       {" "}
       {{
-        damage: "damage",
-        counters: "counters",
         offAdjust: "offense adjustment",
         defAdjust: "defense adjustment",
-        status: "status",
-      }[l.path[2]]}
+      }[l.path[2]] || l.path[2]}
     </>
 
   if(label)
