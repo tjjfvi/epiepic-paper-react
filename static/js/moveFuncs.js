@@ -58,7 +58,7 @@ const canPlayCard = (game, card) =>
   card.card() &&
   game.p.hasInitiative() &&
   !game.hideInitiative() &&
-  (!card.card().cost || game.p.gold());
+  (!card.card().cost || (game.p.gold() === true || game.p.gold() === card.card().factionCode));
 moveFuncs.playCardGold = (game: Game, card: Card) => ({
   name: "Auto-Play",
   func: () => {

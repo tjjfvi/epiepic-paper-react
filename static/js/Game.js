@@ -11,6 +11,7 @@ type O<T> = Observable<T>;
 type C<T> = Computed<T>;
 
 type Alignment = "good" | "sage" | "evil" | "wild";
+type Gold = false | true | Alignment;
 type Phase = "start" | "main" | "battle-0" | "battle-1" | "battle-2" | "battle-3" | "battle-4" | "end";
 type Zone = "hand" | "deck" | "disc" | "supp" | "play" | "none" | "banish";
 type CardStatus = "prepared" | "expended" | "flipped";
@@ -21,8 +22,7 @@ type Player = {
     hasInitiative: C<boolean>,
     waitingOn: O<boolean>,
     attention: O<boolean>,
-    gold: O<boolean>,
-    goldAlignment: O<?Alignment>,
+    gold: O<Gold>,
     health: O<number>,
     zones: { [Zone]: C<Array<Card>> },
     game: Game,
@@ -146,8 +146,7 @@ class Game {
               hasInitiative: computed(() => this.initiative() === n),
               waitingOn: ws.observable<boolean>(p.waitingOn, [pn, "waitingOn"]),
               attention: ws.observable<boolean>(p.attention, [pn, "attention"]),
-              gold: ws.observable<boolean>(p.gold, [pn, "gold"]),
-              goldAlignment: ws.observable<?Alignment>(p.goldAlignment, [pn, "goldAlignment"]),
+              gold: ws.observable<Gold>(p.gold, [pn, "gold"]),
               health: ws.observable<number>(p.health, [pn, "health"]),
               zones: Game.zones.map(zone => {
                 let x: { [Zone]: C<Array<Card>> } = ({
@@ -162,9 +161,6 @@ class Game {
               }).reduce<{ [Zone]: C<Array<Card>> }>((b, a) => ({ ...a, ...b }), {}),
               game: this
             };
-            player.gold.ee.on("change", v => {
-              if(!v) player.goldAlignment(null);
-            })
             return player;
           };
           this.p0 = p(false);

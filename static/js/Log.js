@@ -60,14 +60,12 @@ const LogEntry = ({ l, game }: LogEntryProps) => {
     return <i>{"\uD83E\uDC52"} {l.path[0] === "phase" ? Game.phaseNames[l.val] : pName(l.val)}</i>;
 
   let label = null;
+  let val = l.val;
 
-  if(l.path[0][0] === "p" && !!~["goldAlignment", "gold", "health"].indexOf(l.path[1])) {
-    label = <>
-      {psName(l.path[0][1])}{" "}
-      {l.path[1] === "goldAlignment" ? "gold alignment" : l.path[1]}
-    </>;
+  if(l.path[0][0] === "p" && !!~["gold", "health"].indexOf(l.path[1])) {
+    label = <> {psName(l.path[0][1])}{" "}{l.path[1]}</>;
     if(l.path[1] === "gold")
-      l.val = (+l.val) + "";
+      val = (typeof l.val === "boolean" ? +l.val : "1" + l.val[0].toUpperCase()) + "";
   }
   if(l.path[0] === "card" && l.path[2] !== "pos")
     label = <>
@@ -85,8 +83,8 @@ const LogEntry = ({ l, game }: LogEntryProps) => {
   if(label)
     return <div className={p}>
       {label}{": "}
-      {l.val + ""}
-      {typeof l.val === "number" ? ` (${(l.val < l.old ? "-" : "+")}${Math.abs(l.old - l.val)})` : ""}
+      {val + ""}
+      {typeof val === "number" ? ` (${(val < l.old ? "-" : "+")}${Math.abs(l.old - val)})` : ""}
     </div>;
 
   return <></>;

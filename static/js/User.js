@@ -16,14 +16,14 @@ type Props = {
 const GoldBadge = observer<Props>(({ player }) =>
   <div
     className="gold Badge"
-    data-g={+player.gold()}
-    data-f={(player.goldAlignment() || [""])[0].toUpperCase()}
+    data-g={+!!player.gold()}
+    data-f={typeof player.gold.val === "boolean" ? "" : player.gold.val[0].toUpperCase()}
     onClick={() => player.gold.toggle()}
     {...rightClick([
-      { name: "Any", func: () => (player.gold(true), player.goldAlignment(null)) },
+      { name: "Any", func: () => player.gold(true) },
       ...Game.alignments.map(a => ({
         name: Game.alignmentNames[a],
-        func: () => (player.gold(true), player.goldAlignment(a)),
+        func: () => player.gold(a),
         class: a,
       }))
     ])}
