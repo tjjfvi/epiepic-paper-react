@@ -32,20 +32,21 @@ const b = browserify(__dirname + "/static/js/index.js", {
   ],
   cache: {},
   packageCache: {},
-  transform: [ babelify.configure({
-    presets: [
-      "@babel/preset-env",
-      "@babel/preset-react",
-      "@babel/preset-flow",
-    ],
-    plugins: [
-      "@babel/plugin-proposal-class-properties",
-      "@babel/plugin-proposal-nullish-coalescing-operator",
-      "@babel/plugin-proposal-optional-chaining",
-    ],
-  }) ],
   debug: !!DEBUG,
   plugin: [ watchify ],
+}).transform(babelify, {
+  presets: [
+    "@babel/preset-env",
+    "@babel/preset-react",
+    "@babel/preset-flow",
+  ],
+  plugins: [
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-proposal-nullish-coalescing-operator",
+    "@babel/plugin-proposal-optional-chaining",
+  ],
+  global: true,
+  ignore: [/\/node_modules\/(?!rhobo\/)/],
 });
 
 b.on("update", bundle);
