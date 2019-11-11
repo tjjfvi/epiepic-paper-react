@@ -7,7 +7,7 @@ import type { Observable } from "rhobo";
 import LoginScreen from "./LoginScreen";
 // import { go } from "./App";
 
-const debounceL = 500;
+const debounceDefault = 500;
 
 class WS extends EventEmitter {
 
@@ -46,7 +46,7 @@ class WS extends EventEmitter {
     this.ws.send(JSON.stringify(data));
   }
 
-  observable<T>(val: T, recvType: Array<any>, sendType: Array<any> = recvType): Observable<T>{
+  observable<T>(val: T, type: Array<any>, debounce: number = debounceDefault): Observable<T>{
     let timeout = null;
     let o = observable<T>(val);
     let c = computed<T>(
@@ -54,12 +54,12 @@ class WS extends EventEmitter {
       v => {
         o(v);
         clearTimeout(timeout);
-        timeout = setTimeout(() => this.s(...sendType, v), debounceL);
+        timeout = setTimeout(() => this.s(...type, v), debounce);
       }
     );
     this.on("message", data => {
-      if(!recvType.every((x, i) => data[i] === x)) return;
-      o(data[recvType.length]);
+      if(!type.every((x, i) => data[i] === x)) return;
+      o(data[type.length]);
     });
     return c;
   }
