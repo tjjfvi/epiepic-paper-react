@@ -85,6 +85,7 @@ class Game {
       supp: "Supplemental",
       play: "Play",
       banish: "Banished",
+      none: "None",
     }
 
     static cardStatuses: Array<CardStatus> = ["prepared", "expended", "flipped"];

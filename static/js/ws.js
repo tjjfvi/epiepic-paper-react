@@ -52,9 +52,9 @@ class WS extends EventEmitter {
     let c = computed<T>(
       () => o(),
       v => {
-        o(v);
         clearTimeout(timeout);
         timeout = setTimeout(() => this.s(...type, v), debounce);
+        o(v);
       }
     );
     this.on("message", data => {
