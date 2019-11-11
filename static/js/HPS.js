@@ -20,8 +20,22 @@ type Props = {
 const HPS = ({ game, zone, className, main, menu = [], cardMenu }: Props) => {
   zone.use();
   return (
-    <div className={"HPS " + (className || "")} {...rightClick(menu)}>
-      {zone().map(c => <Card game={game} main={main} menu={cardMenu} key={c.id} card={c}/>)}
+    <div className={"HPS " + (className || "")} {...rightClick([
+      { name: "Select All", func: () => zone().map(c => c.selected(true)) },
+      ...menu
+    ])}>
+      {zone().map(c => {
+        let exec = f => {
+          if(zone().some(c => c.selected()))
+            zone().filter(c => c.selected()).map(c => {
+              c.selected(false);
+              f(game, c).func()
+            });
+          else
+            f(game, c).func();
+        };
+        return <Card game={game} main={main} menu={cardMenu} key={c.id} card={c} exec={exec}/>
+      })}
     </div>
   )
 }

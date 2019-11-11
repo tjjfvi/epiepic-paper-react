@@ -14,6 +14,7 @@ const double = (a: (any=>any), b: (any=>any) = a): (any => any) => {
       clickTimeout = null;
       b(e);
     }, 250);
+    e.persist();
   }
   return f;
 };

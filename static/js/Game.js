@@ -45,6 +45,7 @@ type Card = {
   def: C<number>,
   marked: O<boolean>,
   public: O<boolean>,
+  selected: O<boolean>,
 };
 type LogEntry =
   | {
@@ -227,6 +228,7 @@ class Game {
           status: ws.observable<CardStatus>(c.status, ["card", id, "status"]),
           marked: ws.observable<boolean>(c.marked, ["card", id, "marked"]),
           public: ws.observable<boolean>(c.public, ["card", id, "public"]),
+          selected: observable<boolean>(false),
         };
         let card: Card = Object.assign({}, _card, {
           off: computed<number>(

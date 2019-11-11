@@ -19,18 +19,30 @@ type Props = {
   card: CardType,
   menu: Array<MoveFunc>,
   main?: MoveFunc,
+  exec: (MoveFunc) => void,
 }
-const Card = observer<Props>(({ game, card, menu, main = moveFuncs.mark }) => {
-  let m = [moveFuncs.mark, ...menu].map(f => f(game, card));
+const Card = observer<Props>(({ game, card, menu, main = moveFuncs.mark, exec }) => {
+  let m = [moveFuncs.mark, ...menu].map(f => {
+    let mf = f(game, card);
+    return {
+      ...mf,
+      func: () => exec(f),
+    };
+  });
   return (
     <div className={
       (card.marked() ? "marked " : "") +
-      (card.inBattle() ? "inBattle" : "") +
-      " Card " +
+      (card.inBattle() ? "inBattle " : "") +
+      (card.selected() ? "selected " : "") +
+      "Card " +
       card.status()
     } onClick={double(
-      () => main(game, card).func(),
-      () => previewCard(card),
+      () => exec(main),
+      e => {
+        if(e.ctrlKey)
+          return card.selected.toggle();
+        previewCard(card)
+      },
     )} {...rightClick(m)}>
       <img className="_" src="/314x314.jpg"/>
       <img src={`/images/${card.card()?._id || "back"}`}/>
