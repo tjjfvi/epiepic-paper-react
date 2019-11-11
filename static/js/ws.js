@@ -7,6 +7,8 @@ import type { Observable } from "rhobo";
 import LoginScreen from "./LoginScreen";
 // import { go } from "./App";
 
+const debounceL = 500;
+
 class WS extends EventEmitter {
 
   ws: WebSocket;
@@ -45,12 +47,14 @@ class WS extends EventEmitter {
   }
 
   observable<T>(val: T, recvType: Array<any>, sendType: Array<any> = recvType): Observable<T>{
+    let timeout = null;
     let o = observable<T>(val);
     let c = computed<T>(
       () => o(),
       v => {
         o(v);
-        this.s(...sendType, v)
+        clearTimeout(timeout);
+        timeout = setTimeout(() => this.s(...sendType, v), debounceL);
       }
     );
     this.on("message", data => {
