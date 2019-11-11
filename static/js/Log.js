@@ -83,6 +83,7 @@ const LogEntry = ({ l, game }: LogEntryProps) => {
     return <div className={p}>
       {label}{": "}
       {l.val + ""}
+      {typeof l.val === "number" ? ` (${(l.val < l.old ? "-" : "+")}${Math.abs(l.old - l.val)})` : ""}
     </div>;
 
   return <></>;
