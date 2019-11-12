@@ -22,13 +22,15 @@ type Props = {
   exec: (MoveFunc) => void,
 }
 const Card = observer<Props>(({ game, card, menu, main = moveFuncs.mark, exec }) => {
-  let m = [moveFuncs.mark, ...menu].map(f => {
+  let { spectating } = game;
+  let m = spectating ? [] : [moveFuncs.mark, ...menu].map(f => {
     let mf = f(game, card);
     return {
       ...mf,
       func: () => exec(f),
     };
   });
+  let NB = p => <NumberBadge lock={spectating} {...p}/>;
   return (
     <div className={
       (card.marked() ? "marked " : "") +
@@ -37,9 +39,9 @@ const Card = observer<Props>(({ game, card, menu, main = moveFuncs.mark, exec })
       "Card " +
       card.status()
     } onClick={double(
-      () => exec(main),
+      () => !spectating && exec(main),
       e => {
-        if(e.ctrlKey)
+        if(e.ctrlKey && !spectating)
           return card.selected.toggle();
         previewCard(card)
       },
@@ -47,12 +49,12 @@ const Card = observer<Props>(({ game, card, menu, main = moveFuncs.mark, exec })
       <img className="_" src="/314x314.jpg"/>
       <img src={`/images/${card.card()?._id || "back"}`}/>
       <div className="badges">
-        <NumberBadge value={card.damage} show={c<b>(() => !!card.damage())} className="damage"/>
-        <NumberBadge value={card.counters} show={c<b>(() => !!card.counters())} className="counters"/>
-        <NumberBadge value={card.off} show={c<b>(() => !!card.offAdjust() || !!card.counters())} className="off"/>
-        <NumberBadge value={card.def} show={c<b>(() => !!card.defAdjust() || !!card.counters())} className="def"/>
-        <NumberBadge value={card.offAdjust} className="offAdjust"/>
-        <NumberBadge value={card.defAdjust} className="defAdjust"/>
+        <NB value={card.damage} show={c<b>(() => !!card.damage())} className="damage"/>
+        <NB value={card.counters} show={c<b>(() => !!card.counters())} className="counters"/>
+        <NB value={card.off} show={c<b>(() => !!card.offAdjust() || !!card.counters())} className="off"/>
+        <NB value={card.def} show={c<b>(() => !!card.defAdjust() || !!card.counters())} className="def"/>
+        <NB value={card.offAdjust} className="offAdjust"/>
+        <NB value={card.defAdjust} className="defAdjust"/>
         <Toggle className="deploying Badge" value={c<b>(() =>
           card.deploying() &&
           card.zone() === "play"

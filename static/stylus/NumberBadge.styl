@@ -10,7 +10,7 @@
 
   transition opacity .2s
 
-  &.hoverIntent
+  &.hoverIntent:not(.lock)
     z-index 2
 
   .Badge
@@ -42,6 +42,6 @@
     .a
       cursor pointer
       
-    &.hoverIntent
+    :not(.lock)&.hoverIntent
       height 100px
       bottom -30px

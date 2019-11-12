@@ -115,6 +115,7 @@ app.ws("/ws", async (ws, req) => {
   ws.user = user;
 
   ws.reconnectGames = gm.getReconnectGames(ws).then(games => (ws.s("reconnectGames", games), games));
+  updateSpectate([ws]);
 
   ws.status = "waiting";
   wss.waiting.push(ws);
@@ -150,6 +151,7 @@ app.ws("/ws", async (ws, req) => {
       sendStatus(ws, ws2);
 
       gm.setup(ws2, ws, ws2, pswd).catch(gmError(ws));
+      updateSpectate();
 
       return;
     }
@@ -197,6 +199,22 @@ app.ws("/ws", async (ws, req) => {
 
       gm.reconnect(ws, game).catch(gmError(ws));
     }
+    if(type === "spectate") {
+      if(ws.status !== "waiting")
+        return;
+
+      let [id, pswd] = data;
+      console.log(ws.spectateGames);
+      let g = ws.spectateGames.find(g => g.id.toString() === id);
+
+      if(!g || (g.v.pswd && pswd !== g.game.pswd)) return ws.s("joinFailed");
+
+      // eslint-disable-next-line require-atomic-updates
+      ws.status = "spectating";
+      sendStatus(ws);
+
+      gm.spectate(ws, g.game).catch(gmError(ws));
+    }
     if(ws.status !== "playing")
       return;
 
@@ -206,7 +224,7 @@ app.ws("/ws", async (ws, req) => {
   ws.on("close", () => {
     if(ws.status === "playing")
       return gm.disconnect(ws);
-    wss[ws.status].splice(wss[ws.status].indexOf(ws), 1);
+    wss[ws.status] && wss[ws.status].splice(wss[ws.status].indexOf(ws), 1);
     if(ws.status === "hosting")
       sendGames();
   })
@@ -250,4 +268,8 @@ function gmError(ws){
     sendStatus(ws, ws.o || { s: () => {} });
     console.error((ws.game || {})._id, e);
   }
+}
+
+function updateSpectate(ws_ = wss.waiting){
+  ws_.map(ws => ws.s("spectateGames", (ws.spectateGames = gm.getSpectateGames(ws)).map(g => g.v)));
 }

@@ -149,8 +149,8 @@ async function handle(ws, type, ...data){
     };
     p.s("init", p.n, obj);
     p.os("init", p.o.n, obj);
-    p.s("oActive", p.o.active);
-    p.os("oActive", p.active);
+    p.as("p0", "active", p.p0.active);
+    p.as("p1", "active", p.p1.active);
   }
   if(type === "concede") {
     game.finished = true;
@@ -159,7 +159,7 @@ async function handle(ws, type, ...data){
   await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
 }
 
-async function setup(ws1, ws2){
+async function setup(ws1, ws2, pswd){
   if(Math.random() > .5)
     [ws1, ws2] = [ws2, ws1];
   let f = ws => ({
@@ -179,6 +179,7 @@ async function setup(ws1, ws2){
     willPass: true,
     log: [],
     cards: [],
+    pswd,
   });
   let p0 = genP(ws1, game, false);
   let p1 = genP(ws2, game, true);
@@ -188,6 +189,7 @@ async function setup(ws1, ws2){
   p0.p1 = p1;
   p1.p0 = p0;
   p1.p1 = p1;
+  p0.specs = p1.specs = [];
   p0s[game._id] = p0;
   await (await db).insertOne(game);
 }
@@ -201,7 +203,8 @@ function genP(ws, game, n){
   p.wss = [ws];
   p.s = (...a) => p.wss.map(ws => ws && ws.s(...a));
   p.os = (...a) => p.o.s(...a);
-  p.as = (...a) => (p.s(...a), p.os(...a));
+  p.ss = (...a) => p.specs.map(ws => ws && ws.s(...a));
+  p.as = (...a) => (p.s(...a), p.os(...a), p.ss(...a));
   return p;
 }
 
@@ -229,6 +232,7 @@ async function reconnect(ws, { game }){
     p1.p1 = p1;
     p0.o = p1;
     p1.o = p0;
+    p0.specs = p1.specs = [];
     p = pn ? p1 : p0;
     p0s[game._id] = p0;
   } else {
@@ -242,7 +246,6 @@ async function reconnect(ws, { game }){
           p0;
   }
   p.active++;
-  p.os("oActive", p.active);
   p.wss.push(ws);
   ws.p = p;
   ws.s("init", p.n, {
@@ -253,13 +256,31 @@ async function reconnect(ws, { game }){
         c
     )
   });
-  ws.s("oActive", p.o.active);
+  p.as("p0", "active", p0.active);
+  p.as("p1", "active", p0.o.active);
   return;
+}
+
+async function spectate(ws, game){
+  let p0 = p0s[game._id];
+  if(!p0)
+    throw new Error("!!!");
+  p0.specs.push(ws);
+  ws.s("init", Math.random() > .5, {
+    ...game,
+    cards: game.cards.map(c =>
+      (!c.public && (c.zone === "deck" || c.zone === "hand")) ?
+        { ...c, card: null } :
+        c
+    )
+  }, true);
+  ws.s("p0", "active", p0.active);
+  ws.s("p1", "active", p0.o.active);
 }
 
 function disconnect(ws){
   ws.p.active--;
-  ws.p.os("oActive", ws.p.active);
+  ws.p.as("p" + +ws.p.n, "active", ws.p.active);
 }
 
 async function log(p, ...log){
@@ -268,4 +289,20 @@ async function log(p, ...log){
   p.game.log.push(...log);
 }
 
-module.exports = { handle, setup, getReconnectGames, reconnect, disconnect };
+function getSpectateGames(ws){
+  return Object.values(p0s)
+    .filter(p0 => p0.active || p0.o.active)
+    .filter(p0 => p0.game.p0.user._id !== ws.user._id && p0.game.p1.user._id !== ws.user._id)
+    .map(p0 => ({
+      id: p0.game._id,
+      v: {
+        id: p0.game._id,
+        p0: p0.game.p0.user,
+        p1: p0.game.p1.user,
+        pswd: !!p0.game.pswd,
+      },
+      game: p0.game,
+    }));
+}
+
+module.exports = { handle, setup, getReconnectGames, reconnect, disconnect, getSpectateGames, spectate };

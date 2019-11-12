@@ -11,14 +11,17 @@ type Props = {
     className: string,
 }
 const Deck = observer<Props>(({ player, className }) => {
+  let { spectating } = player.game;
   let draw = (zone = "hand") => {
+    if(spectating)
+      return;
     if(player !== player.game.p)
       return;
     let card = player.zones.deck().slice(-1)[0];
     card.pos(player.game.maxPos + 1);
     card.zone(zone);
   }
-  let menu = player === player.game.p ? [
+  let menu = player === player.game.p && !spectating ? [
     {
       name: "Unbanish",
       func: () => {

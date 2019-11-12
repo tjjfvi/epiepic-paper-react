@@ -18,6 +18,7 @@ type CardStatus = "prepared" | "expended" | "flipped";
 type Player = {
     n: boolean,
     user: any,
+    active: O<number>,
     hasTurn: C<boolean>,
     hasInitiative: C<boolean>,
     waitingOn: O<boolean>,
@@ -106,7 +107,6 @@ class Game {
     initiative: O<boolean>;
     phase: O<Phase>;
     willPass: O<boolean>;
-    oActive: O<number>;
     p: Player;
     o: Player;
     p0: Player;
@@ -124,18 +124,20 @@ class Game {
     canPass: C<boolean>;
     willProceed: C<boolean>;
 
+    spectating: boolean;
+
     log = observable<Array<LogEntry>>([]);
 
     constructor(ws: WS){
       this.ws = ws;
       ws.on("message", ([type, ...data]) => {
         if(type === "init") {
-          let [pn, g] = data;
+          let [pn, g, spectating] = data;
           this.turn = ws.observable<boolean>(g.turn, ["turn"])
           this.initiative = ws.observable<boolean>(g.initiative, ["initiative"])
           this.phase = ws.observable<Phase>(g.phase, ["phase"])
           this.willPass = ws.observable<boolean>(g.willPass, ["willPass"]);
-          this.oActive = ws.observable<number>(0, ["oActive"]);
+          this.spectating = spectating;
           this.log(g.log);
           this.addCards(...g.cards);
           let p = (n: boolean): Player => {
@@ -144,6 +146,7 @@ class Game {
             let player = {
               n,
               user: p.user,
+              active: ws.observable<number>(0, [pn, "active"]),
               hasTurn: computed(() => this.turn() === n),
               hasInitiative: computed(() => this.initiative() === n),
               waitingOn: ws.observable<boolean>(p.waitingOn, [pn, "waitingOn"]),

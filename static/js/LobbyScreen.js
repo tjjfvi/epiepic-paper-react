@@ -7,17 +7,24 @@ import GameScreen from "./GameScreen";
 import { UploadButton } from "./registerSW";
 import { go } from "./App";
 
-const Game = observer(({ game, isReconnect = false }) => {
+const Game = observer(({ game, isReconnect = false, isSpectate = false }) => {
   const wrong = useObservable(false);
   const input = React.useRef();
   return <div className={"game " + (game.pswd ? "pswd" : "")}>
     <span>
-      <span>{game.oUser ? `@${game.oUser.username}#${game.oUser.discriminator}` : game.name}</span>
+      {isSpectate ?
+        <>
+          <span>{`@${game.p0.username}#${game.p0.discriminator}`}</span>
+          <br/>
+          <span>{`@${game.p1.username}#${game.p1.discriminator}`}</span>
+        </> :
+        <span>{game.oUser ? `@${game.oUser.username}#${game.oUser.discriminator}` : game.name}</span>
+      }
     </span>
     <div>
       <input ref={input} className={wrong() ? "wrong" : ""}type="password" data-lpignore="true" placeholder="Password"/>
       <button onClick={() => {
-        ws.s(isReconnect ? "reconnect" : "join", game.id, input.current.value)
+        ws.s(isReconnect ? "reconnect" : isSpectate ? "spectate" : "join", game.id, input.current.value)
         let h = data => {
           if(data[0] !== "joinFailed")
             return;
@@ -25,7 +32,7 @@ const Game = observer(({ game, isReconnect = false }) => {
           ws.removeListener("message", h)
         }
         ws.on("message", h);
-      }}>{isReconnect ? "Reconnect" : "Join"}</button>
+      }}>{isReconnect ? "Reconnect" : isSpectate ? "Spectate" : "Join"}</button>
     </div>
   </div>
 });
@@ -33,9 +40,10 @@ const Game = observer(({ game, isReconnect = false }) => {
 const LobbyScreen = observer(() => {
   const games = useValue(() => ws.observable([], ["games"]));
   const reconnectGames = useValue(() => ws.observable([], ["reconnectGames"]));
+  const spectateGames = useValue(() => ws.observable([], ["spectateGames"]));
   const status = useValue(() => ws.observable(null, ["status"]));
   const input = React.useRef();
-  if(status() === "reconnecting")
+  if(status() === "reconnecting" || status() === "spectating")
     go(GameScreen);
   if(status() === "playing")
     go(DeckChoiceScreen);
@@ -46,8 +54,9 @@ const LobbyScreen = observer(() => {
         <UploadButton/>
         <div className="join">
           <h1>Join an existing game</h1>
+          {reconnectGames().map((game, i) => <Game game={game} isReconnect key={i}/>)}
           {games().map((game, i) => <Game game={game} key={i}/>)}
-          {reconnectGames().map((game, i) => <Game game={game} isReconnect={true} key={i}/>)}
+          {spectateGames().map((game, i) => <Game game={game} isSpectate key={i}/>)}
         </div>
         <div className="host">
           <h1>Host a new game</h1>

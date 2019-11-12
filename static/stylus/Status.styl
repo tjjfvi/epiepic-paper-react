@@ -1,4 +1,12 @@
 
+notLock()
+  :not(.lock)&
+    {block}
+
+onLock()
+  .lock{""}&
+    {block}
+
 .status
   display flex
   flex-direction column
@@ -46,7 +54,6 @@
         opacity 0
         
     .attention
-      cursor pointer
       width 5ex
       height @width
       border 3px solid $darkgrey
@@ -58,17 +65,20 @@
         border-width 0
         background-color $yellow
 
+      +notLock()
         &.p
-          animation pulse 1s infinite
-        
-      &.p.false
-        opacity 0
-        pointer-events none
+          &.true
+            animation pulse 1s infinite
+          &.false
+            opacity 0
+            pointer-events none
+      +onLock()
+        &.false
+          opacity 0
+          pointer-events none
       
 
     .waitingOn
-      cursor pointer
-      animation pulse 1s infinite
       width 5ex
       height @width
       border 3px solid $grey
@@ -79,9 +89,14 @@
         border-width 0
         background-color $white
 
-      &.false
-      &.o
-        animation none
+      +notLock()
+        &.p.true
+          animation pulse 1s infinite
+
+    +notLock()
+      .waitingOn
+      .attention
+        cursor pointer
     
   .tp
     width 50%
@@ -95,24 +110,24 @@
     padding 1ex 1em
     margin 1ex 0
 
-    cursor pointer
-
     color $lightgrey
     border 3px solid $grey
     border-radius 2ex
 
     text-align center
 
-    &.canProceed
-      color $blue
-      border-color @color
-    &.willProceed
-      color $green
-      border-color @color
-    &.shouldProceed.pTurn
-      color $green
-      border-color @color
-      animation pulse 2s infinite
+    &:not(.lock)
+      cursor pointer
+      &.canProceed
+        color $blue
+        border-color @color
+      &.willProceed
+        color $green
+        border-color @color
+      &.shouldProceed.pTurn
+        color $green
+        border-color @color
+        animation pulse 2s infinite
 
     .turn
       font-weight 100

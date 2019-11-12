@@ -48,7 +48,7 @@ const GameScreen = () => {
     <Log game={game}/>
 
     <GameStateHelper game={game}/>
-    <User player={game.o} game={game} active={game.oActive}/>
+    <User player={game.o} game={game}/>
     <HPS cardMenu={[]} game={game} zone={game.o.zones.hand} className="o hand"/>
     <HPS
       cardMenu={playMenu}
