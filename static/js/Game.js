@@ -366,6 +366,13 @@ class Game {
       }))
     }
 
+    swapSides(){
+      let p = this.p;
+      this.p = this.o;
+      this.o = p;
+      this.ready.to();
+    }
+
 }
 
 export default Game;

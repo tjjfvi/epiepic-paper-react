@@ -5,7 +5,6 @@ import Game from "./Game";
 import type { Player } from "./Game";
 import NumberBadge from "./NumberBadge";
 import rightClick from "./rightClick";
-import type { Observable } from "rhobo";
 import { observer } from "rhobo";
 
 type Props = {
@@ -37,8 +36,10 @@ const User = ({ player, game }: Props) => {
       <div className="avatarGroup">
         <GoldBadge lock={spectating} player={player}/>
         <img className="avatar" src={`/api/user:${user._id}/avatar`} {...rightClick(
-          player === game.p && !spectating ?
-            [ { name: "Concede", func: () => game.ws.s("concede") } ] :
+          player === game.p ?
+            spectating ?
+              [{ name: "Swap Sides", func: () => game.swapSides() }] :
+              [ { name: "Concede", func: () => game.ws.s("concede") } ] :
             []
         )}/>
         <NumberBadge lock={spectating} value={player.health} className="health"/>
