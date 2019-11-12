@@ -20,7 +20,7 @@ type Props = {
 const HPS = ({ game, zone, className, main, menu = [], cardMenu }: Props) => {
   zone.use();
   return (
-    <div className={"HPS " + (className || "")} {...rightClick([
+    <div className={"HPS " + (className || "")} {...rightClick(game.spectating ? [] : [
       { name: "Select All", func: () => zone().map(c => c.selected(true)) },
       ...menu
     ])}>
