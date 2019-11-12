@@ -43,7 +43,7 @@ const Card = observer<Props>(({ game, card, menu, main = moveFuncs.mark, exec })
       e => {
         if(e.ctrlKey && !spectating)
           return card.selected.toggle();
-        previewCard(card)
+        previewCard(card.card())
       },
     )} {...rightClick(m)}>
       <img className="_" src="/314x314.jpg"/>

@@ -1,18 +1,21 @@
+/* @flow */
 
 import React from "react";
 import { observable } from "rhobo";
 import LobbyScreen from "./LobbyScreen";
 import { RightClickMenu, appEventBindings } from "./rightClick";
 import { observer } from "rhobo";
+import ws from "./ws";
 
 import "./hoverIntent";
 import "./registerSW";
 import "./styleReload";
 
-const screen = observable(LobbyScreen);
-const go = x => screen(x);
+const status = ws.observable<string>("", ["status"]);
+const screen = observable<() => any>(LobbyScreen);
+const go = (x: ()=>any) => screen(x);
 
-const App = observer(() => {
+const App = observer<{}>(() => {
   const Screen = screen();
   return <div {...appEventBindings}>
     <Screen/>
@@ -21,4 +24,4 @@ const App = observer(() => {
 });
 
 export default App;
-export { go };
+export { go, status };

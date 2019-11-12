@@ -2,7 +2,6 @@
 
 import React from "react";
 import { observable } from "rhobo";
-import type { Card } from "./Game";
 
 const card = observable();
 const showCard = observable(false);
@@ -16,9 +15,9 @@ const CardPreview = () => {
   </div>
 }
 
-const previewCard = (c: Card) => {
-  card(c.card());
-  if(c.card())
+const previewCard = (c: any) => {
+  card(c);
+  if(c)
     showCard(true);
 }
 

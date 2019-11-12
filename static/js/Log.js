@@ -98,7 +98,7 @@ const CardName = ({ game, id }: CardNameProps) => {
   card.card.use()
   let name = card && card.card() ? card.card().name : "?";
   return <span
-    onClick={() => card && previewCard(card)}
+    onClick={() => card && previewCard(card.card())}
     onMouseEnter={() => $(".CardName." + id).addClass("highlight")}
     onMouseLeave={() => $(".highlight.CardName." + id).removeClass("highlight")}
     className={"CardName " + id}

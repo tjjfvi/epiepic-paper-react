@@ -1,0 +1,80 @@
+
+.Draft
+  display grid
+  grid-template:
+    "title deck" 100px \
+    "cards deck" 1fr \
+    "nav   deck" 100px \
+    / 1fr 400px
+  place-items center center
+
+  width 100vw
+  height 100vh
+
+  .title
+    grid-area title
+    font-size 50px
+    font-weight 100
+
+  .hand
+    grid-area cards
+    display flex
+    flex-direction row
+    align-items center
+    justify-content center
+    place-self stretch stretch
+
+    .DraftCard:not(:first-child)
+      margin-left 1%
+    
+  .deck
+    border-left 3px solid $grey
+    grid-area deck
+    place-self stretch stretch
+    padding-top 50px
+    display flex
+    flex-direction row
+    justify-content space-evenly
+
+    & > div
+      display flex
+      flex-direction column
+      width 50%
+      height 100%
+      justify-content flex-start
+
+    .DraftCard:not(:last-child)
+      margin-bottom -121%  
+
+  .nav
+    grid-area nav
+    background-color $black
+    border 2px solid $grey
+    max-width 300px
+    width 100%
+    height 50px
+    color $lightgrey
+    border-radius 10px
+    font-size 20px
+
+    &.enabled
+      cursor pointer
+      color $white
+      border-color $white
+
+
+.DraftCard
+  max-width 200px
+  cursor pointer
+  flex 0 1 200px*1.39555555
+  position relative
+  img
+    width auto
+    height auto
+    max-height 100%
+    max-width 100%
+    border-radius 10px
+    border 1px solid black
+    .selected&
+      border-color $white
+

@@ -4,8 +4,9 @@ import { useValue, useObservable, observer } from "rhobo";
 import ws from "./ws";
 import DeckChoiceScreen from "./DeckChoiceScreen";
 import GameScreen from "./GameScreen";
+import DraftScreen from "./DraftScreen";
 import { UploadButton } from "./registerSW";
-import { go } from "./App";
+import { go, status } from "./App";
 
 const Game = observer(({ game, isReconnect = false, isSpectate = false }) => {
   const wrong = useObservable(false);
@@ -41,10 +42,12 @@ const LobbyScreen = observer(() => {
   const games = useValue(() => ws.observable([], ["games"]));
   const reconnectGames = useValue(() => ws.observable([], ["reconnectGames"]));
   const spectateGames = useValue(() => ws.observable([], ["spectateGames"]));
-  const status = useValue(() => ws.observable(null, ["status"]));
   const input = React.useRef();
+  const select = React.useRef();
   if(status() === "reconnecting" || status() === "spectating")
     go(GameScreen);
+  if(status() === "drafting")
+    go(DraftScreen);
   if(status() === "playing")
     go(DeckChoiceScreen);
   return (
@@ -64,8 +67,15 @@ const LobbyScreen = observer(() => {
             <span>Password <i>(optional)</i></span>
             <input ref={input} type="password" data-lpignore="true"/>
           </label>
+          <label>
+            <span>Mode</span>
+            <select ref={select}>
+              <option value="constructed">Constructed</option>
+              <option value="draft">Draft</option>
+            </select>
+          </label>
           <button onClick={() => {
-            ws.s("host", input.current.value);
+            ws.s("host", input.current.value, select.current.value);
           }}>Host</button>
         </div>
       </div>

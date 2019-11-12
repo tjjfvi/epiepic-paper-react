@@ -1,3 +1,4 @@
+/* eslint-disable require-atomic-updates */
 
 const uuidv4 = require("uuid/v4");
 const { MongoClient } = require("mongodb");
@@ -7,6 +8,8 @@ let db = MongoClient.connect(MDB_URL, { useNewUrlParser: true, useUnifiedTopolog
   console.log("Connected to MongoDB");
   return db = client.db(MDB_NAME).collection(MDB_COL);
 });
+
+const draftGM = require("./draftGM")(db, { setupFromDraft });
 
 const p0s = {};
 
@@ -94,23 +97,14 @@ async function handle(ws, type, ...data){
   }
   if(type === "newCard") {
     let [cardData, owner, player, zone, pos] = data;
-    let card = {
-      id: uuidv4(),
+    let card = newCard({
       card: cardData,
       owner,
       player,
       zone,
       pos,
-      damage: 0,
-      counters: 0,
-      offAdjust: 0,
-      defAdjust: 0,
-      inBattle: false,
-      status: "prepared",
       deploying: true,
-      marked: false,
-      public: false,
-    };
+    });
     game.cards.push(card);
     p.as("newCard", card);
     log(p, {
@@ -124,39 +118,58 @@ async function handle(ws, type, ...data){
   }
   if(type === "deck") {
     if(p.deck) return;
-    p.deck = [].concat(...data[0].map(({ count, card }) => [...Array(count)].map(() => ({
-      id: uuidv4(),
-      card: card,
-      owner: !!p.n,
-      player: !!p.n,
-      zone: "deck",
-      pos: Math.random(),
-      damage: 0,
-      counters: 0,
-      offAdjust: 0,
-      defAdjust: 0,
-      inBattle: false,
-      status: "prepared",
-      deploying: false,
-      marked: false,
-      public: false,
-    }))));
+    p.deck = [].concat(...data[0].map(({ count, card }) => [...Array(count)].map(() => newCard({ card }, !!p.n))))
     if(!p.o.deck) return;
-    game.cards.push(...p.deck, ...p.o.deck);
-    let obj = {
-      ...game,
-      cards: game.cards.map(c => ({ ...c, card: null }))
-    };
-    p.s("init", p.n, obj);
-    p.os("init", p.o.n, obj);
-    p.as("p0", "active", p.p0.active);
-    p.as("p1", "active", p.p1.active);
+    setupCont(p);
   }
   if(type === "concede") {
     game.finished = true;
     p.as("fin", !p.n)
   }
   await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
+}
+
+function newCard(props, owner){
+  return {
+    id: uuidv4(),
+    zone: "deck",
+    pos: Math.random(),
+    damage: 0,
+    counters: 0,
+    offAdjust: 0,
+    defAdjust: 0,
+    inBattle: false,
+    status: "prepared",
+    deploying: false,
+    marked: false,
+    public: false,
+    owner,
+    player: owner,
+    ...props,
+  }
+}
+
+async function setupFromDraft(dg, ws1, ws2, pswd){
+  [ws1, ws2].map(ws => ws.s("status", ws.status = "playing"));
+  await setup(ws1, ws2, pswd);
+  let p0 = ws1.p.p0;
+  let game = p0.game;
+  [ws1, ws2].map(ws => ws.p.deck = dg["deck" + ws.n].map(c => newCard({ card: c }, ws.p.n)));
+  await setupCont(ws1.p);
+  await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
+}
+
+async function setupCont(p){
+  let { game } = p;
+  game.cards.push(...p.deck, ...p.o.deck);
+  let obj = {
+    ...game,
+    cards: game.cards.map(c => ({ ...c, card: null }))
+  };
+  p.s("init", p.n, obj);
+  p.os("init", p.o.n, obj);
+  p.as("p0", "active", p.p0.active);
+  p.as("p1", "active", p.p1.active);
 }
 
 async function setup(ws1, ws2, pswd){
@@ -213,6 +226,7 @@ async function getReconnectGames(ws){
   return (await db.find({
     $or: [{ "p0.user._id": id }, { "p1.user._id": id }],
     finished: { $ne: true },
+    drafting: { $ne: true },
   }).toArray()).map(game => {
     let oUser = game.p0.user._id === id ? game.p1.user : game.p0.user;
     return { oUser, id: game._id, game };
@@ -305,4 +319,13 @@ function getSpectateGames(ws){
     }));
 }
 
-module.exports = { handle, setup, getReconnectGames, reconnect, disconnect, getSpectateGames, spectate };
+module.exports = {
+  handle,
+  setup,
+  getReconnectGames,
+  reconnect,
+  disconnect,
+  getSpectateGames,
+  spectate,
+  ...draftGM,
+};

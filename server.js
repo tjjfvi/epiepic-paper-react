@@ -147,19 +147,28 @@ app.ws("/ws", async (ws, req) => {
       ws.o = ws2;
       ws2.o = ws;
 
-      ws.status = ws2.status = "playing";
-      sendStatus(ws, ws2);
+      if(ws2.mode === "constructed") {
+        ws.status = ws2.status = "playing";
+        sendStatus(ws, ws2);
 
-      gm.setup(ws2, ws, ws2, pswd).catch(gmError(ws));
-      updateSpectate();
+        gm.setup(ws2, ws, pswd).catch(gmError(ws));
+        updateSpectate();
+      } else if(ws2.mode === "draft") {
+        ws.status = ws2.status = "drafting";
+        sendStatus(ws, ws2);
 
+        gm.setupDraft(ws2, ws, pswd).catch(gmError(ws));
+      }
       return;
     }
     if(type === "host") {
       if(ws.status !== "waiting")
         return;
 
-      let [pswd] = data;
+      let [pswd, mode] = data;
+
+      if(!~["constructed", "draft"].indexOf(mode))
+        mode = "constructed";
 
       let name = `@${ws.user.username}#${ws.user.discriminator}`;
 
@@ -167,6 +176,7 @@ app.ws("/ws", async (ws, req) => {
       wss.byId[ws.id] = ws;
       ws.name = name;
       ws.pswd = pswd;
+      ws.mode = mode;
 
       wss.waiting.splice(wss.waiting.indexOf(ws), 1);
       wss.hosting.push(ws);
@@ -192,7 +202,6 @@ app.ws("/ws", async (ws, req) => {
 
       console.log(game, id);
       if(!game) return;
-
       // eslint-disable-next-line require-atomic-updates
       ws.status = "playing";
       sendStatus(ws);
@@ -215,10 +224,10 @@ app.ws("/ws", async (ws, req) => {
 
       gm.spectate(ws, g.game).catch(gmError(ws));
     }
-    if(ws.status !== "playing")
-      return;
-
-    gm.handle(ws, type, ...data).catch(gmError(ws));
+    if(ws.status === "playing")
+      gm.handle(ws, type, ...data).catch(gmError(ws));
+    if(ws.status === "drafting")
+      gm.handleDraft(ws, type, ...data).catch(gmError(ws));
   })
 
   ws.on("close", () => {
@@ -251,9 +260,10 @@ const port = process.env.PORT || 22563;
 app.listen(port, () => console.log(`Listening on http://localhost:${port}/`))
 
 function sendGames(ws_ = wss.waiting){
-  ws_.map(ws => ws.s("games", wss.hosting.map(({ id, name, pswd }) => ({
+  ws_.map(ws => ws.s("games", wss.hosting.map(({ id, name, mode, pswd }) => ({
     id,
     name,
+    mode,
     pswd: !!pswd,
   }))));
 }
