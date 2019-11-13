@@ -31,7 +31,7 @@ class WS extends EventEmitter {
       const data = JSON.parse(msg);
       if(data[0] === "ping") return;
       if(data[0] !== "style")
-        console.log("<", ...data);
+        console.log("←", ...data);
       this.emit("message", data);
       if(data[0] === "login")
         go(LoginScreen);
@@ -42,7 +42,7 @@ class WS extends EventEmitter {
   }
 
   s(...data: Array<any>){
-    console.log(">", ...data);
+    console.log("→", ...data);
     this.ws.send(JSON.stringify(data));
   }
 

@@ -45,7 +45,6 @@ const LobbyScreen = observer(() => {
   const spectateGames = useValue(() => ws.observable([], ["spectateGames"]));
   const input = React.useRef();
   const select = React.useRef();
-  console.log(status() === "playing", oldStatus.val !== "")
   if(status() === "spectating" || (status() === "playing" && oldStatus.val !== ""))
     go(GameScreen);
   else if(status() === "drafting")

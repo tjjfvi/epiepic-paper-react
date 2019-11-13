@@ -29,7 +29,6 @@ module.exports = (db, { setupFromDraft }) => {
   }
 
   function next(game, p0, p1){
-    console.log(game.hand0.length, game.hand1.length)
     if(game.hand0.length || game.hand1.length)
       return;
     game.phase++;
