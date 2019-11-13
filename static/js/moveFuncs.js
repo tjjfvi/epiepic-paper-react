@@ -117,7 +117,6 @@ moveFuncs.mark = (game: Game, card: Card) => ({
 moveFuncs.reveal = (game: Game, card: Card) => ({
   name: computed(() => card.public() ? "Unreveal" : "Reveal"),
   func: () => {
-    console.log(card.public())
     card.public.toggle();
   }
 });

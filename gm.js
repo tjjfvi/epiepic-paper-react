@@ -224,12 +224,13 @@ function genP(ws, game, n){
 async function getReconnectGames(ws){
   let id = ws.user._id;
   return (await db.find({
-    $or: [{ "p0.user._id": id }, { "p1.user._id": id }],
+    $or: [{ "p0.user._id": id }, { "p1.user._id": id }, { "user0._id": id }, { "user1._id": id }],
     finished: { $ne: true },
-    drafting: { $ne: true },
   }).toArray()).map(game => {
-    let oUser = game.p0.user._id === id ? game.p1.user : game.p0.user;
-    return { oUser, id: game._id, game };
+    let oUser = game.drafting ?
+      game.user0._id === id ? game.user1 : game.user0 :
+      game.p0.user._id === id ? game.p1.user : game.p0.user
+    return { oUser, id: game._id, mode: game.drafting ? "draft" : "constructed", game };
   });
 }
 

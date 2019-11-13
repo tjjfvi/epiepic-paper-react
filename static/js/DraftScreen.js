@@ -15,11 +15,11 @@ const DraftCard = ({ id, onClick, selected = false }: { id: number, onClick: () 
   </div>
 );
 const DraftScreen = observer<{}>(() => {
-  const hand = useValue(() => ws.observable<Array<any>>([], ["hand"]));
   const phase = useValue(() => ws.observable(0, ["phase"]));
-  const deck = useObservable<Array<any>>([]);
-  const passed = useObservable<Array<any>>([]);
-  const burnt = useObservable<Array<any>>([]);
+  const hand = useValue(() => ws.observable<Array<any>>([], ["hand"]));
+  const deck = useValue(() => ws.observable<Array<any>>([], ["deck"]));
+  const passed = useValue(() => ws.observable<Array<any>>([], ["passed"]));
+  const burnt = useValue(() => ws.observable<Array<any>>([], ["burnt"]));
   const selected = useObservable<Array<any>>([]);
   const enabled = useComputed(() => selected().length === (phase() % 2 + 1));
   const active = useObservable<number>(2);

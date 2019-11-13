@@ -39,46 +39,51 @@ const Game = observer(({ game, isReconnect = false, isSpectate = false }) => {
 });
 
 const LobbyScreen = observer(() => {
+  const oldStatus = useObservable(status());
   const games = useValue(() => ws.observable([], ["games"]));
   const reconnectGames = useValue(() => ws.observable([], ["reconnectGames"]));
   const spectateGames = useValue(() => ws.observable([], ["spectateGames"]));
   const input = React.useRef();
   const select = React.useRef();
-  if(status() === "reconnecting" || status() === "spectating")
+  console.log(status() === "playing", oldStatus.val !== "")
+  if(status() === "spectating" || (status() === "playing" && oldStatus.val !== ""))
     go(GameScreen);
-  if(status() === "drafting")
+  else if(status() === "drafting")
     go(DraftScreen);
-  if(status() === "playing")
+  else if(status() === "playing")
     go(DeckChoiceScreen);
+  else oldStatus(status())
   return (
     status() === "hosting" ?
       <div className="waiting">Waiting for someone to join...</div> :
-      <div className="Lobby">
-        <UploadButton/>
-        <div className="join">
-          <h1>Join an existing game</h1>
-          {reconnectGames().map((game, i) => <Game game={game} isReconnect key={i}/>)}
-          {games().map((game, i) => <Game game={game} key={i}/>)}
-          {spectateGames().map((game, i) => <Game game={game} isSpectate key={i}/>)}
+      status() === "reconnecting" ?
+        <div className="waiting">One moment...</div> :
+        <div className="Lobby">
+          <UploadButton/>
+          <div className="join">
+            <h1>Join an existing game</h1>
+            {reconnectGames().map((game, i) => <Game game={game} isReconnect key={i}/>)}
+            {games().map((game, i) => <Game game={game} key={i}/>)}
+            {spectateGames().map((game, i) => <Game game={game} isSpectate key={i}/>)}
+          </div>
+          <div className="host">
+            <h1>Host a new game</h1>
+            <label>
+              <span>Password <i>(optional)</i></span>
+              <input ref={input} type="password" data-lpignore="true"/>
+            </label>
+            <label>
+              <span>Mode</span>
+              <select ref={select}>
+                <option value="constructed">Constructed</option>
+                <option value="draft">Draft</option>
+              </select>
+            </label>
+            <button onClick={() => {
+              ws.s("host", input.current.value, select.current.value);
+            }}>Host</button>
+          </div>
         </div>
-        <div className="host">
-          <h1>Host a new game</h1>
-          <label>
-            <span>Password <i>(optional)</i></span>
-            <input ref={input} type="password" data-lpignore="true"/>
-          </label>
-          <label>
-            <span>Mode</span>
-            <select ref={select}>
-              <option value="constructed">Constructed</option>
-              <option value="draft">Draft</option>
-            </select>
-          </label>
-          <button onClick={() => {
-            ws.s("host", input.current.value, select.current.value);
-          }}>Host</button>
-        </div>
-      </div>
   )
 });
 

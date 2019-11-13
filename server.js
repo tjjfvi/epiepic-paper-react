@@ -104,7 +104,6 @@ app.ws("/ws", async (ws, req) => {
   }
 
   let token = req.cookies.token;
-  console.log(token);
   let user = await fetch(`${API_BASE_URL}api/user/current`, {
     headers: { Cookie: `token=${token}` },
   }).then(r => r.json()).catch(() => null);
@@ -200,20 +199,21 @@ app.ws("/ws", async (ws, req) => {
       let games = await ws.reconnectGames;
       let game = games.find(g => g.id.toString() === id);
 
-      console.log(game, id);
       if(!game) return;
       // eslint-disable-next-line require-atomic-updates
-      ws.status = "playing";
+      ws.status = game.mode === "draft" ? "drafting" : "playing";
       sendStatus(ws);
 
-      gm.reconnect(ws, game).catch(gmError(ws));
+      if(game.mode === "draft")
+        gm.reconnectDraft(ws, game).catch(gmError(ws));
+      else
+        gm.reconnect(ws, game).catch(gmError(ws));
     }
     if(type === "spectate") {
       if(ws.status !== "waiting")
         return;
 
       let [id, pswd] = data;
-      console.log(ws.spectateGames);
       let g = ws.spectateGames.find(g => g.id.toString() === id);
 
       if(!g || (g.v.pswd && pswd !== g.game.pswd)) return ws.s("joinFailed");
@@ -231,6 +231,8 @@ app.ws("/ws", async (ws, req) => {
   })
 
   ws.on("close", () => {
+    if(ws.status === "drafting")
+      return gm.disconnectDraft(ws);
     if(ws.status === "playing")
       return gm.disconnect(ws);
     wss[ws.status] && wss[ws.status].splice(wss[ws.status].indexOf(ws), 1);
