@@ -119,6 +119,8 @@ module.exports = (db, { setupFromDraft }) => {
     ws.s("deck", p.game["deck" + p.n]);
     ws.s("burnt", p.game["burnt" + p.n]);
     ws.s("passed", p.game["passed" + p.n]);
+    if(game.phase >= 20)
+      return setupFromDraft(game, p0, p0.o, game.pswd);
   }
 
   function genP(ws, game, n){
@@ -129,6 +131,7 @@ module.exports = (db, { setupFromDraft }) => {
     p.n = n;
     p.wss = [ws];
     p.active = +!!ws;
+    p.p = p;
     p.s = (...a) => p.wss.map(ws => ws && ws.s(...a));
     return p;
   }

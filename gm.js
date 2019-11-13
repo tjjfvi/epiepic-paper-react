@@ -149,13 +149,15 @@ function newCard(props, owner){
   }
 }
 
-async function setupFromDraft(dg, ws1, ws2, pswd){
-  [ws1, ws2].map(ws => ws.s("status", ws.status = "playing"));
-  await setup(ws1, ws2, pswd);
-  let p0 = ws1.p.p0;
-  let game = p0.game;
-  [ws1, ws2].map(ws => ws.p.deck = dg["deck" + ws.n].map(c => newCard({ card: c }, ws.p.n)));
-  await setupCont(ws1.p);
+async function setupFromDraft(dg, dp0, dp1, pswd){
+  [dp0, dp1].map(p => p.wss.map(ws => ws && ws.s("status", ws.status = "playing")));
+  await setup(null, null, pswd, dg.user0, dg.user1, dp0.wss, dp1.wss);
+  let p = (dp0.wss.find(ws => ws) || dp1.wss.find(ws => ws).p.o).p;
+  let game = p.game;
+  [p, p.o].map((p, i) => p.deck = dg["deck" + i].map(c => newCard({ card: c }, p.n)));
+  await setupCont(p);
+  dg.finished = true;
+  await (await db).findOneAndUpdate({ _id: dg._id }, { $set: { finished: true } });
   await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
 }
 
@@ -172,11 +174,11 @@ async function setupCont(p){
   p.as("p1", "active", p.p1.active);
 }
 
-async function setup(ws1, ws2, pswd){
+async function setup(ws1, ws2, pswd, user1 = ws1.user, user2 = ws2.user, wss1 = [ws1], wss2 = [ws2]){
   if(Math.random() > .5)
-    [ws1, ws2] = [ws2, ws1];
-  let f = ws => ({
-    user: ws.user,
+    [ws1, ws2, user1, user2, wss1, wss2] = [ws2, ws1, user2, user1, wss2, wss1];
+  let f = user => ({
+    user,
     health: 30,
     gold: true,
     waitingOn: true,
@@ -184,8 +186,8 @@ async function setup(ws1, ws2, pswd){
   });
   let game = ({
     _id: uuidv4(),
-    p0: f(ws1),
-    p1: f(ws2),
+    p0: f(user1),
+    p1: f(user2),
     turn: false,
     phase: "start",
     initiative: false,
@@ -194,8 +196,8 @@ async function setup(ws1, ws2, pswd){
     cards: [],
     pswd,
   });
-  let p0 = genP(ws1, game, false);
-  let p1 = genP(ws2, game, true);
+  let p0 = genP(wss1, game, false);
+  let p1 = genP(wss2, game, true);
   p0.o = p1;
   p1.o = p0;
   p0.p0 = p0;
@@ -207,13 +209,14 @@ async function setup(ws1, ws2, pswd){
   await (await db).insertOne(game);
 }
 
-function genP(ws, game, n){
+function genP(wss, game, n){
   let p = {};
-  if(ws) ws.p = p;
-  p.active = +!!ws;
+  wss.map(ws => ws && (ws.p = p));
+  p.active = wss.filter(ws => ws && ws.readyState === 1).length;
   p.n = n;
   p.game = game;
-  p.wss = [ws];
+  p.wss = wss;
+  p.p = p;
   p.s = (...a) => p.wss.map(ws => ws && ws.s(...a));
   p.os = (...a) => p.o.s(...a);
   p.ss = (...a) => p.specs.map(ws => ws && ws.s(...a));
@@ -239,8 +242,8 @@ async function reconnect(ws, { game }){
   let p;
   if(!p0) {
     let pn = game.p0.user._id !== ws.user._id;
-    p0 = genP(null, game, false);
-    let p1 = genP(null, game, true);
+    p0 = genP([], game, false);
+    let p1 = genP([], game, true);
     p0.p0 = p0;
     p0.p1 = p1;
     p1.p0 = p0;
