@@ -50,7 +50,7 @@ const DraftScreen = observer<{}>(() => {
         >
           <div className="side">
             <span>{["Passed", "Burnt", "Deck"][i]}</span>
-            <AlignmentSquare cards={cs()}/>
+            <AlignmentSquare cards={cs()}total={[40, 20, 30][i]}/>
           </div>
           <div className="cards">
             {cs().map(c => <DraftCard key={c._id} id={c._id} onClick={() => previewCard(c)}/>)}
