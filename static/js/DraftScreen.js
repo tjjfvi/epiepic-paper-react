@@ -28,7 +28,7 @@ const DraftScreen = observer<{}>(() => {
   return <div className="Draft">
     <CardPreview/>
     <span className="title">{`Pack ${Math.floor(phase() / 2) + 1}, Pick ${phase() % 2 + 1}`}</span>
-    <div className="hand">
+    {hand().length ? <div className="hand">
       {hand().map(c => <DraftCard key={c._id} id={c._id} onClick={() => {
         if(selected().includes(c)) {
           selected().splice(selected().indexOf(c), 1);
@@ -40,7 +40,7 @@ const DraftScreen = observer<{}>(() => {
         selected().push(c);
         selected.to();
       }} selected={selected().includes(c)}/>)}
-    </div>
+    </div> : <div className="hand waiting"><span>Waiting for opponent...</span></div>}
     <div className="side">
       {[passed, burnt, deck].map((cs, i) =>
         <div
