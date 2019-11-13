@@ -54,7 +54,7 @@ module.exports = (db, { setupFromDraft }) => {
       [ws1, ws2] = [ws2, ws1];
     let game = {
       _id: uuidv4(),
-      pool: [...(await cardData)],
+      pool: [...(await cardData)].filter(c => c.packCode !== "tokens"),
       dead0: [],
       dead1: [],
       deck0: [],
