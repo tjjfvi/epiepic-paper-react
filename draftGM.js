@@ -19,7 +19,7 @@ module.exports = (db, { setupFromDraft }) => {
       game["deck" + n].push(...selection);
       let rest = game["hand" + n].filter(c => !selection.find(C => c._id === C._id));
       game["hand" + n] = [];
-      if(game.phase % 1)
+      if(game.phase % 2)
         game["burnt" + n].push(...rest);
       else
         game["passed" + n].push(...(game["next" + +!n] = rest));
