@@ -29,7 +29,7 @@ sideWidth = (100vh*400/988)
     .DraftCard:not(:first-child)
       margin-left 1%
     
-  .side
+  & > .side
     grid-area side
     place-self stretch stretch
     display flex
@@ -51,7 +51,7 @@ sideWidth = (100vh*400/988)
       &.active
         flex-grow 1
 
-      & > div
+      .cards
         display flex
         flex-direction row
         justify-content flex-start
@@ -73,14 +73,25 @@ sideWidth = (100vh*400/988)
             left 0
             max-height none
 
-      &:before
-        content attr(data-name)
+      .side
         position absolute
         top 50%
         left 25px
         transform translate(-50%, -50%) rotate(-90deg)
         font-size 30px
         font-weight 100
+        width 100vh
+        display flex
+        flex-direction row
+        align-items center
+        justify-content center
+
+        span
+          width 100px
+          text-align center
+
+        .AlignmentSquare
+          margin-left 10px
 
   .nav
     grid-area nav

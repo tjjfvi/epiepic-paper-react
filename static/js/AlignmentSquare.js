@@ -1,0 +1,15 @@
+// @flow
+
+import React from "react";
+
+const AlignmentSquare = ({ cards }: { cards: Array<any>}) => (
+  <div className="AlignmentSquare">
+    {["good", "sage", "evil", "wild"].map(a =>
+      <div key={a} className={a} style={(n => ({ width: n, height: n }))(
+        Math.sqrt(cards.filter(c => c.factionCode === a).length / cards.length) * 50 + "%"
+      )}/>
+    )}
+  </div>
+)
+
+export default AlignmentSquare;

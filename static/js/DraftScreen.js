@@ -6,6 +6,7 @@ import CardPreview, { previewCard } from "./CardPreview";
 import { useValue, useObservable, useComputed, observer } from "rhobo";
 import { status, go } from "./App";
 import GameScreen from "./GameScreen";
+import AlignmentSquare from "./AlignmentSquare";
 
 const DraftCard = ({ id, onClick, selected = false }: { id: number, onClick: () => void, selected?: boolean }) => (
   <div className={"DraftCard " + (selected ? "selected" : "")} onClick={onClick}>
@@ -44,11 +45,14 @@ const DraftScreen = observer<{}>(() => {
       {[passed, burnt, deck].map((cs, i) =>
         <div
           key={i}
-          data-name={["Passed", "Burnt", "Deck"][i]}
           className={active() === i ? "active" : ""}
           onClick={() => active(i)}
         >
-          <div>
+          <div className="side">
+            <span>{["Passed", "Burnt", "Deck"][i]}</span>
+            <AlignmentSquare cards={cs()}/>
+          </div>
+          <div className="cards">
             {cs().map(c => <DraftCard key={c._id} id={c._id} onClick={() => previewCard(c)}/>)}
           </div>
         </div>

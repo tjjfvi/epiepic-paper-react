@@ -1,0 +1,27 @@
+
+.AlignmentSquare
+  display inline-block
+  min-width 30px
+  min-height 30px
+  max-width 30px
+  max-height 30px
+  position relative
+  border 2px solid $grey
+
+  div
+    colorClasses background-color
+
+    position absolute
+
+    &.good
+      right 50%
+      bottom 50%
+    &.sage
+      left 50%
+      bottom 50%
+    &.evil
+      left 50%
+      top 50%
+    &.wild
+      right 50%
+      top 50%
