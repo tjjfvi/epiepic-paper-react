@@ -13,10 +13,7 @@ self.addEventListener("fetch", async event => {
 
   if(pathname.startsWith("/images/")) {
     if(pathname.endsWith(".jpg") || pathname.endsWith(".svg"))
-      return event.respondWith(caches.match(event.request).then(response => {
-        console.log(pathname, !!response);
-        return response || fetch(event.request);
-      }));
+      return event.respondWith(caches.match(event.request).then(response => response || fetch(event.request)));
     event.respondWith((async () => {
       let cache = await caches.open(cacheName);
       let match = await cache.match(new Request(event.request.url + ".jpg"));
