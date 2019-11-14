@@ -1,11 +1,7 @@
 /* eslint-disable require-atomic-updates */
 
-const { API_BASE_URL } = process.env;
-const fetch = require("node-fetch");
-
-module.exports = (db, { setupFromDraft }) => {
+module.exports = (db, { cards: pool, setupFromDraft }) => {
   const uuidv4 = require("uuid/v4");
-  const cardData = fetch(API_BASE_URL + "api/card/.json").then(r => r.json());
 
   const p0s = {};
 
@@ -58,7 +54,7 @@ module.exports = (db, { setupFromDraft }) => {
       [ws1, ws2] = [ws2, ws1];
     let game = {
       _id: uuidv4(),
-      pool: [...(await cardData)].filter(c => c.packCode !== "tokens"),
+      pool: [...(await pool)],
       user0: ws1.user,
       passed0: [],
       burnt0: [],

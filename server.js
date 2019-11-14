@@ -146,11 +146,11 @@ app.ws("/ws", async (ws, req) => {
       ws.o = ws2;
       ws2.o = ws;
 
-      if(ws2.mode === "constructed") {
+      if(ws2.mode === "constructed" || ws2.mode === "rmr30") {
         ws.status = ws2.status = "playing";
         sendStatus(ws, ws2);
 
-        gm.setup(ws2, ws, pswd).catch(gmError(ws));
+        gm[ws2.mode === "rmr30" ? "setupRMR30" : "setup"](ws2, ws, pswd).catch(gmError(ws));
         updateSpectate();
       } else if(ws2.mode === "draft") {
         ws.status = ws2.status = "drafting";
@@ -166,7 +166,7 @@ app.ws("/ws", async (ws, req) => {
 
       let [pswd, mode] = data;
 
-      if(!~["constructed", "draft"].indexOf(mode))
+      if(!~["constructed", "draft", "rmr30"].indexOf(mode))
         mode = "constructed";
 
       let name = `@${ws.user.username}#${ws.user.discriminator}`;

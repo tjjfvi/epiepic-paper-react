@@ -1,12 +1,20 @@
 
 import React from "react";
-import { useValue, useObservable, observer } from "rhobo";
+import { useValue, useObservable, observable, observer } from "rhobo";
 import ws from "./ws";
 import DeckChoiceScreen from "./DeckChoiceScreen";
 import GameScreen from "./GameScreen";
 import DraftScreen from "./DraftScreen";
 import { UploadButton } from "./registerSW";
 import { go, status } from "./App";
+
+const modes = ["constructed", "draft", "rmr30"];
+const modeNames = {
+  constructed: "Constructed",
+  draft: "Draft",
+  rmr30: "R30, Mono, Random",
+};
+const mode = observable("");
 
 const Game = observer(({ game, isReconnect = false, isSpectate = false }) => {
   const wrong = useObservable(false);
@@ -22,10 +30,12 @@ const Game = observer(({ game, isReconnect = false, isSpectate = false }) => {
         <span>{game.oUser ? `@${game.oUser.username}#${game.oUser.discriminator}` : game.name}</span>
       }
     </span>
+    <span>{modeNames[game.mode || "constructed"]}</span>
     <div>
       <input ref={input} className={wrong() ? "wrong" : ""}type="password" data-lpignore="true" placeholder="Password"/>
       <button onClick={() => {
         ws.s(isReconnect ? "reconnect" : isSpectate ? "spectate" : "join", game.id, input.current.value)
+        mode(game.mode);
         let h = data => {
           if(data[0] !== "joinFailed")
             return;
@@ -45,11 +55,11 @@ const LobbyScreen = observer(() => {
   const spectateGames = useValue(() => ws.observable([], ["spectateGames"]));
   const input = React.useRef();
   const select = React.useRef();
-  if(status() === "spectating" || (status() === "playing" && oldStatus.val !== ""))
+  if(status() === "spectating" || (status() === "playing" && (oldStatus.val !== "" || mode() === "rmr30")))
     go(GameScreen);
   else if(status() === "drafting")
     go(DraftScreen);
-  else if(status() === "playing")
+  else if(status() === "playing" && (!mode() || mode() === "constructed"))
     go(DeckChoiceScreen);
   else oldStatus(status())
   return (
@@ -74,11 +84,11 @@ const LobbyScreen = observer(() => {
             <label>
               <span>Mode</span>
               <select ref={select}>
-                <option value="constructed">Constructed</option>
-                <option value="draft">Draft</option>
+                {modes.map(m => <option key={m} value={m}>{modeNames[m]}</option>)}
               </select>
             </label>
             <button onClick={() => {
+              mode(select.current.value);
               ws.s("host", input.current.value, select.current.value);
             }}>Host</button>
           </div>

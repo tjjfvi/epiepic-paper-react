@@ -1,15 +1,20 @@
 /* eslint-disable require-atomic-updates */
 
 const uuidv4 = require("uuid/v4");
+const fetch = require("node-fetch");
 const { MongoClient } = require("mongodb");
 
-const { MDB_URL, MDB_NAME, MDB_COL } = process.env;
+const { MDB_URL, MDB_NAME, MDB_COL, API_BASE_URL } = process.env;
 let db = MongoClient.connect(MDB_URL, { useNewUrlParser: true, useUnifiedTopology: true }).then(client => {
   console.log("Connected to MongoDB");
   return db = client.db(MDB_NAME).collection(MDB_COL);
 });
 
-const draftGM = require("./draftGM")(db, { setupFromDraft });
+const cards = fetch(API_BASE_URL + "api/card/.json")
+  .then(r => r.json())
+  .then(cs => cs.filter(c => c.packCode !== "tokens"))
+
+const draftGM = require("./draftGM")(db, { cards, setupFromDraft });
 
 const p0s = {};
 
@@ -153,6 +158,7 @@ async function setupFromDraft(dg, dp0, dp1, pswd){
   [dp0, dp1].map(p => p.wss.map(ws => ws && ws.s("status", ws.status = "playing")));
   let p0 = await setup(null, null, pswd, dg.user0, dg.user1, dp0.wss, dp1.wss);
   let game = p0.game;
+  game.mode = "draft";
   game.finData = {
     p0Draft: draftGM.genDraftUrl(dg, 0),
     p1Draft: draftGM.genDraftUrl(dg, 1),
@@ -161,6 +167,21 @@ async function setupFromDraft(dg, dp0, dp1, pswd){
   await setupCont(p0);
   dg.finished = true;
   await (await db).findOneAndUpdate({ _id: dg._id }, { $set: { finished: true } });
+  await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
+}
+
+async function setupRMR30(ws1, ws2, pswd){
+  let cs = await cards;
+  let { game, p0, p1 } = await setup(ws1, ws2, pswd);
+  [p0, p1].map(p => {
+    let a = ["good", "sage", "evil", "wild"][Math.floor(Math.random() * 4)].toUpperCase();
+    let pool = cs.filter(c => c.faction === a);
+    p.deck = [...Array(30)].map(() => newCard({
+      card: pool.splice(Math.floor(Math.random() * pool.length), 1)[0]
+    }, p.n));
+  });
+  game.mode = "rmr30";
+  await setupCont(p0);
   await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
 }
 
@@ -238,7 +259,7 @@ async function getReconnectGames(ws){
     let oUser = game.drafting ?
       game.user0._id === id ? game.user1 : game.user0 :
       game.p0.user._id === id ? game.p1.user : game.p0.user
-    return { oUser, id: game._id, mode: game.drafting ? "draft" : "constructed", game };
+    return { oUser, id: game._id, mode: game.drafting ? "draft" : game.mode || "constructed", game };
   });
 }
 
@@ -338,5 +359,6 @@ module.exports = {
   disconnect,
   getSpectateGames,
   spectate,
+  setupRMR30,
   ...draftGM,
 };
