@@ -20,11 +20,18 @@ const GameStateHelper = observer<{game: Game}>(({ game }) => <div className={
   (game.p.gold() ? "pGold " : "") +
   (game.o.gold() ? "oGold " : "") +
 ""}/>);
-const GameScreen = () => {
+const GameScreen = observer<{}>(() => {
   const game = useValue(() => new Game(ws));
-  game.ready.use();
   if(!game.ready())
     return <div className="waiting">One moment...</div>;
+  if(game.fin())
+    return <div className="fin">
+      <span>{game.finData.won ? "You won!" : "You lost."}</span>
+      {(game.p.n ? [1, 0] : [0, 1]).map((n, i) =>
+        game.finData["p" + n + "Draft"] &&
+          <a key={i} href={game.finData["p" + n + "Draft"]}>{i ? "Their draft" : "Your draft"}</a>
+      )}
+    </div>
   const suppMenu = [
     moveFuncs.disc,
     moveFuncs.play,
@@ -95,6 +102,6 @@ const GameScreen = () => {
 
     <CardPreview/>
   </div>
-}
+});
 
 export default GameScreen;

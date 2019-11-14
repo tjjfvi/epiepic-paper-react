@@ -124,7 +124,7 @@ async function handle(ws, type, ...data){
   }
   if(type === "concede") {
     game.finished = true;
-    p.as("fin", !p.n)
+    p.as("fin", !p.n, game.finData);
   }
   await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
 }
@@ -151,11 +151,14 @@ function newCard(props, owner){
 
 async function setupFromDraft(dg, dp0, dp1, pswd){
   [dp0, dp1].map(p => p.wss.map(ws => ws && ws.s("status", ws.status = "playing")));
-  await setup(null, null, pswd, dg.user0, dg.user1, dp0.wss, dp1.wss);
-  let p = (dp0.wss.find(ws => ws) || dp1.wss.find(ws => ws).p.o).p;
-  let game = p.game;
-  [p, p.o].map((p, i) => p.deck = dg["deck" + i].map(c => newCard({ card: c }, p.n)));
-  await setupCont(p);
+  let p0 = await setup(null, null, pswd, dg.user0, dg.user1, dp0.wss, dp1.wss);
+  let game = p0.game;
+  game.finData = {
+    p0Draft: draftGM.genDraftUrl(dg, 0),
+    p1Draft: draftGM.genDraftUrl(dg, 1),
+  };
+  [p0, p0.o].map((p, i) => p.deck = dg["deck" + i].map(c => newCard({ card: c }, p.n)));
+  await setupCont(p0);
   dg.finished = true;
   await (await db).findOneAndUpdate({ _id: dg._id }, { $set: { finished: true } });
   await (await db).findOneAndUpdate({ _id: game._id }, { $set: game });
@@ -166,7 +169,8 @@ async function setupCont(p){
   game.cards.push(...p.deck, ...p.o.deck);
   let obj = {
     ...game,
-    cards: game.cards.map(c => ({ ...c, card: null }))
+    cards: game.cards.map(c => ({ ...c, card: null })),
+    finData: null,
   };
   p.s("init", p.n, obj);
   p.os("init", p.o.n, obj);
@@ -174,8 +178,8 @@ async function setupCont(p){
   p.as("p1", "active", p.p1.active);
 }
 
-async function setup(ws1, ws2, pswd, user1 = ws1.user, user2 = ws2.user, wss1 = [ws1], wss2 = [ws2]){
-  if(Math.random() > .5)
+async function setup(ws1, ws2, pswd, user1 = ws1.user, user2 = ws2.user, wss1 = [ws1], wss2 = [ws2], shuffle = true){
+  if(shuffle && Math.random() > .5)
     [ws1, ws2, user1, user2, wss1, wss2] = [ws2, ws1, user2, user1, wss2, wss1];
   let f = user => ({
     user,
@@ -207,6 +211,7 @@ async function setup(ws1, ws2, pswd, user1 = ws1.user, user2 = ws2.user, wss1 = 
   p0.specs = p1.specs = [];
   p0s[game._id] = p0;
   await (await db).insertOne(game);
+  return p0;
 }
 
 function genP(wss, game, n){
@@ -272,7 +277,8 @@ async function reconnect(ws, { game }){
       (!c.public && (c.zone === "deck" || (c.player !== p.n && c.zone === "hand"))) ?
         { ...c, card: null } :
         c
-    )
+    ),
+    finData: null,
   });
   p.as("p0", "active", p0.active);
   p.as("p1", "active", p0.o.active);
@@ -290,7 +296,8 @@ async function spectate(ws, game){
       (!c.public && (c.zone === "deck" || c.zone === "hand")) ?
         { ...c, card: null } :
         c
-    )
+    ),
+    finData: null,
   }, true);
   ws.s("p0", "active", p0.active);
   ws.s("p1", "active", p0.o.active);

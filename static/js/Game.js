@@ -1,11 +1,9 @@
 /* @flow */
 
-import React from "react";
 import { observable, computed } from "rhobo";
 import type { Observable, Computed } from "rhobo";
 import { WS } from "./ws";
 import cardData from "./cardData";
-import { go } from "./App";
 
 type O<T> = Observable<T>;
 type C<T> = Computed<T>;
@@ -128,6 +126,14 @@ class Game {
 
     log = observable<Array<LogEntry>>([]);
 
+    fin: O<boolean>;
+    finData: {
+      won: boolean,
+      p0Draft?: string,
+      p1Draft?: string,
+      [string]: any,
+    }
+
     constructor(ws: WS){
       this.ws = ws;
       ws.on("message", ([type, ...data]) => {
@@ -138,6 +144,7 @@ class Game {
           this.phase = ws.observable<Phase>(g.phase, ["phase"])
           this.willPass = ws.observable<boolean>(g.willPass, ["willPass"]);
           this.spectating = spectating;
+          this.fin = observable<boolean>(false);
           this.log(g.log);
           this.addCards(...g.cards);
           let p = (n: boolean): Player => {
@@ -206,8 +213,13 @@ class Game {
           this.addCards(data[0]);
         if(type === "log")
           this.log([...this.log(), ...data]);
-        if(type === "fin")
-          go(() => <div className="fin">{data[0] === this.p.n ? "You won!" : "You lost."}</div>);
+        if(type === "fin") {
+          this.finData = {
+            ...(data[1] || {}),
+            won: data[0] === this.p.n,
+          };
+          this.fin(true);
+        }
       })
     }
 

@@ -12,8 +12,8 @@ import "./registerSW";
 import "./styleReload";
 
 const status = ws.observable<string>("", ["status"]);
-const screen = observable<() => any>(LobbyScreen);
-const go = (x: ()=>any) => screen(x);
+const screen = observable<any => any>(LobbyScreen);
+const go = (x: any=>any) => screen(x);
 
 const App = observer<{}>(() => {
   const Screen = screen();

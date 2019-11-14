@@ -140,6 +140,17 @@ module.exports = (db, { setupFromDraft }) => {
     ws.p.active--;
   }
 
-  return { setupDraft, handleDraft, reconnectDraft, disconnectDraft };
+  function genDraftUrl(game, n){
+    let deck = game["deck" + n];
+    let passed = game["passed" + n];
+    let burnt = game["burnt" + n];
+    return "https://draftviewer.epiepic.com/?draft=" + [...Array(game.phase)].map((_, i) => {
+      if(i % 2 === 0)
+        return [deck[i / 2 * 3], ...passed.slice(i / 2 * 4).slice(0, 4)];
+      return [...deck.slice(i / 2 + .5).slice(0, 2), ...burnt.slice(i - 1).slice(0, 2)];
+    }).map(cs => cs.map(c => c._id).join("+")).join("/")
+  }
+
+  return { setupDraft, handleDraft, reconnectDraft, disconnectDraft, genDraftUrl };
 
 }
